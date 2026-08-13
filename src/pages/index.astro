@@ -1,0 +1,159 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ResponsiveImage from '../components/ResponsiveImage.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import ArtworkCard from '../components/ArtworkCard.astro';
+import MomentCard from '../components/MomentCard.astro';
+
+const artworks = (await getCollection('artworks')).sort((a, b) => a.data.order - b.data.order);
+const moments = (await getCollection('moments', ({ data }) => data.visibility === 'approved'))
+  .filter((moment) => moment.data.featured && moment.data.kind !== 'making')
+  .sort((a, b) => b.data.date.localeCompare(a.data.date) || b.data.order - a.data.order)
+  .slice(0, 3);
+---
+
+<BaseLayout>
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">HELLO, I AM RONHWUNG</p>
+      <h1>把想象画下来，<br />再亲手做成<em>毛茸茸</em>的现实。</h1>
+      <p class="hero-lead">
+        我是茸磺，一只会画画、也会做毛的毛毛龙。这里收着我的作品、工作台，以及一路遇见的朋友和故事。
+      </p>
+      <div class="hero-actions">
+        <a class="button-link button-link--filled" href="/art/">进入画室 <span aria-hidden="true">↗</span></a>
+        <a class="button-link" href="/making/">看看怎样做毛</a>
+      </div>
+    </div>
+    <div class="hero-art" aria-label="茸磺绘画作品">
+      <span class="tape" aria-hidden="true"></span>
+      <ResponsiveImage
+        src="/media/art/01-code-bloom"
+        alt="茸磺站在代码与机械臂之间，周围漂浮着彩色光点的插画"
+        sizes="(max-width: 760px) 92vw, 40vw"
+        eager={true}
+      />
+      <span class="caption">Photoshop × Procreate</span>
+    </div>
+  </section>
+
+  <section class="home-section">
+    <SectionHeading
+      eyebrow="SELECTED WORKS"
+      title="最近喜欢的几幅画"
+      description="有些想法还没找到合适的语言，就先让颜色、角色和画面自己说话。"
+      href="/art/"
+      linkLabel="完整画室"
+    />
+    <div class="artwork-grid">
+      {artworks.slice(0, 3).map((artwork, index) => <ArtworkCard {artwork} {index} />)}
+    </div>
+  </section>
+
+  <section class="home-section">
+    <SectionHeading
+      eyebrow="DRAW IT · MAKE IT"
+      title="同一只毛毛龙的两种诞生方式"
+      description="画笔把角色带到纸上，针线、毛布和一次次修整再把它带进现实。"
+    />
+    <div class="skill-split">
+      <article class="skill-panel skill-panel--art">
+        <p class="eyebrow">01 · DIGITAL ARTIST</p>
+        <h3>在画布上，让模糊的概念慢慢显形。</h3>
+        <p>Photoshop 与 Procreate 是我的主要工具。这里不急着为每幅作品解释答案，只保留画面和创作过程。</p>
+        <a class="button-link" href="/art/">走进画室 <span aria-hidden="true">↗</span></a>
+        <span class="scribble" aria-hidden="true"></span>
+      </article>
+      <article class="skill-panel skill-panel--making">
+        <p class="eyebrow">02 · FURSUIT MAKER</p>
+        <h3>从一张版型，到真正能戴上的茸磺。</h3>
+        <p>裁毛、缝合、修形，也记录小意外和朋友伸出的手。自己的兽装与帮助朋友制作，是两条各自完整的线。</p>
+        <a class="button-link" href="/making/">打开工作台 <span aria-hidden="true">↗</span></a>
+        <span class="scribble" aria-hidden="true"></span>
+      </article>
+    </div>
+  </section>
+
+  <section class="home-section">
+    <SectionHeading
+      eyebrow="ALONG THE WAY"
+      title="沿途拾起的几页"
+      description="校园、兽聚、写真和小小庆典。完整记录可以按主题阅读，也可以沿着月份慢慢滑过去。"
+      href="/journey/"
+      linkLabel="打开沿途记录"
+    />
+    <div class="moment-grid">
+      {moments.map((moment) => <MomentCard {moment} compact />)}
+    </div>
+  </section>
+
+  <section class="home-section home-character">
+    <div>
+      <p class="eyebrow">MEET RONHWUNG</p>
+      <h2>一只因为硫磺与 <em>fur</em><br />而得到名字的毛毛龙。</h2>
+      <p>茸磺没有复杂的世界观。草黄、薄荷绿与青蓝组成他的样子；至于名字，是从一段关于龙为什么能喷火的玩笑开始的。</p>
+      <a class="button-link" href="/character/">查看茸磺档案 <span aria-hidden="true">↗</span></a>
+    </div>
+    <ResponsiveImage
+      src="/media/character/ronghuang-reference"
+      alt="茸磺角色设定图，包含正反面造型和头部细节"
+      sizes="(max-width: 760px) 92vw, 38vw"
+    />
+  </section>
+</BaseLayout>
+
+<style>
+  .home-character {
+    display: grid;
+    grid-template-columns: 1fr 0.7fr;
+    align-items: center;
+    gap: clamp(45px, 9vw, 120px);
+  }
+
+  .home-character h2 {
+    margin-bottom: 25px;
+    font-family: var(--font-serif);
+    font-size: clamp(2.4rem, 5.5vw, 5rem);
+    font-weight: 620;
+    letter-spacing: -0.05em;
+  }
+
+  .home-character h2 em {
+    color: var(--violet);
+    font-style: normal;
+  }
+
+  .home-character > div > p:not(.eyebrow) {
+    max-width: 650px;
+    margin-bottom: 30px;
+    color: var(--ink-soft);
+    font-size: 1.05rem;
+  }
+
+  .home-character picture {
+    height: 650px;
+    border: 10px solid var(--surface);
+    border-radius: 48% 52% 40% 60% / 38% 42% 58% 62%;
+    background: #8ffff1;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transform: rotate(1.4deg);
+  }
+
+  .home-character picture :global(img) {
+    object-fit: cover;
+    object-position: top center !important;
+  }
+
+  @media (max-width: 760px) {
+    .home-character {
+      grid-template-columns: 1fr;
+    }
+
+    .home-character picture {
+      height: 125vw;
+      max-height: 680px;
+    }
+  }
+</style>

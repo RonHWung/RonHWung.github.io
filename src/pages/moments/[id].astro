@@ -1,0 +1,78 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ResponsiveImage from '../../components/ResponsiveImage.astro';
+import { collectionMeta, type CollectionKey } from '../../data/site';
+
+export async function getStaticPaths() {
+  const moments = await getCollection('moments', ({ data }) => data.visibility === 'approved');
+  return moments.map((moment) => ({ params: { id: moment.id }, props: { moment } }));
+}
+
+const { moment } = Astro.props as { moment: CollectionEntry<'moments'> };
+const { Content } = await render(moment);
+const [year, month] = moment.data.date.split('-');
+const remainingImages = moment.data.images.filter((image) => image.src !== moment.data.cover?.src);
+const kindLabel = moment.data.kind === 'making' ? '做毛记录' : moment.data.kind === 'portrait' ? '写真' : moment.data.kind === 'note' ? '短文' : '活动记录';
+const collectionLabels = moment.data.collections.map((key) => collectionMeta[key as CollectionKey].title);
+---
+
+<BaseLayout title={moment.data.title} description={moment.data.summary} image={moment.data.cover ? `${moment.data.cover.src}-lg.webp` : undefined}>
+  <header class="detail-hero">
+    <p class="eyebrow">{year} / {month} · {kindLabel}</p>
+    <h1>{moment.data.title}</h1>
+    <p class="detail-summary">{moment.data.summary}</p>
+    <div class="tag-row">
+      {moment.data.tags.map((tag) => <span>{tag}</span>)}
+    </div>
+  </header>
+
+  {moment.data.cover ? (
+    <ResponsiveImage
+      class="detail-cover"
+      src={moment.data.cover.src}
+      alt={moment.data.cover.alt}
+      position={moment.data.cover.position}
+      sizes="(max-width: 760px) 96vw, 1180px"
+      eager={true}
+    />
+  ) : (
+    <div class="detail-text-cover">
+      <span aria-hidden="true">✦</span>
+      <p>这段记忆没有照片。<br />文字就是它留下来的样子。</p>
+    </div>
+  )}
+
+  <section class="detail-layout">
+    <aside class="detail-aside">
+      <dl>
+        <div><dt>时间</dt><dd>{year} 年 {Number(month)} 月</dd></div>
+        <div><dt>类型</dt><dd>{kindLabel}</dd></div>
+        <div><dt>收录于</dt><dd>{collectionLabels.join('、')}</dd></div>
+      </dl>
+      <a class="text-link back-link" href="/timeline/">回到完整时间线 <span aria-hidden="true">→</span></a>
+    </aside>
+    <article class="prose">
+      <Content />
+    </article>
+  </section>
+
+  {remainingImages.length > 0 && (
+    <section class="photo-gallery" aria-label="更多照片">
+      {remainingImages.map((image) => (
+        <figure>
+          <ResponsiveImage src={image.src} alt={image.alt} position={image.position} sizes="(max-width: 760px) 96vw, 58vw" />
+          <figcaption>{image.alt}</figcaption>
+        </figure>
+      ))}
+    </section>
+  )}
+</BaseLayout>
+
+<style>
+  .detail-hero .tag-row { margin-top:22px; }
+  .detail-text-cover { display:grid; min-height:330px; place-content:center; margin:25px 0 70px; border:1px dashed rgba(23,55,53,.22); border-radius:var(--radius-lg); color:var(--ink-soft); background:repeating-linear-gradient(0deg,rgba(255,255,255,.3) 0 31px,rgba(23,55,53,.06) 31px 32px); font-family:var(--font-serif); text-align:center; }
+  .detail-text-cover span { color:var(--violet); font-size:2rem; }
+  .detail-text-cover p { margin:10px 0 0; }
+  .back-link { margin-top:28px; }
+</style>

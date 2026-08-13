@@ -1,0 +1,106 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MomentCard from '../components/MomentCard.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+
+const making = (await getCollection('moments', ({ data }) => data.visibility === 'approved' && data.kind === 'making'))
+  .sort((a, b) => a.data.date.localeCompare(b.data.date) || a.data.order - b.data.order);
+const selfMaking = making.filter((item) => item.data.makingFor === 'self');
+const friendMaking = making.filter((item) => item.data.makingFor === 'friend');
+---
+
+<BaseLayout title="做毛工作台" description="茸磺的兽装制作过程，以及和朋友一起做毛的记录。">
+  <header class="page-intro">
+    <div>
+      <p class="eyebrow">FURSUIT WORKBENCH</p>
+      <h1>做毛工作台</h1>
+      <p class="lead">版型、头骨、毛布与针线。自己的茸磺和帮助朋友制作，是两条分开的故事，也共享同一张忙乱而快乐的工作桌。</p>
+    </div>
+    <aside class="page-intro__note">
+      <p class="eyebrow">WORK IN PROGRESS</p>
+      <p>这里保留成品，也保留过程、修正和偶尔不太顺利的小插曲。</p>
+    </aside>
+  </header>
+
+  <section class="page-section">
+    <SectionHeading
+      eyebrow="MY RONHWUNG"
+      title="把茸磺带到现实"
+      description="从 2023 年秋天的头部版型，到圣诞节前第一次完整出现；两年以后，又用余料补上了一条尾巴。"
+    />
+    <div class="making-path" aria-hidden="true"><span>2023.10</span><i></i><span>2023.12</span><i></i><span>2026.05</span></div>
+    <div class="moment-grid">
+      {selfMaking.map((moment) => <MomentCard {moment} compact />)}
+    </div>
+  </section>
+
+  <section class="page-section">
+    <SectionHeading
+      eyebrow="MADE TOGETHER"
+      title="和朋友一起做"
+      description="第一次完整参与做毛，是在刚进入大学的那个九月。未来没有照片的制作经历，也可以作为独立短文继续加入。"
+    />
+    <div class="moment-grid friend-grid">
+      {friendMaking.map((moment) => <MomentCard {moment} />)}
+      <article class="future-note">
+        <span aria-hidden="true">＋</span>
+        <p class="eyebrow">A FUTURE NOTE</p>
+        <h3>下一篇工作台记录</h3>
+        <p>有些制作没有留下照片，仍可以只用文字讲完整。这个空位会留给未来慢慢补上的故事。</p>
+      </article>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .making-path {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: -10px 0 30px;
+    color: var(--ink-soft);
+    font-size: .7rem;
+    letter-spacing: .12em;
+  }
+
+  .making-path i {
+    display: block;
+    width: 56px;
+    border-top: 1px dashed var(--line);
+  }
+
+  .friend-grid {
+    grid-template-columns: 1.3fr .7fr;
+  }
+
+  .future-note {
+    display: grid;
+    min-height: 460px;
+    align-content: center;
+    padding: 38px;
+    border: 1px dashed rgba(23, 55, 53, .28);
+    border-radius: var(--radius-md);
+    background: repeating-linear-gradient(0deg, rgba(255,255,255,.26) 0 31px, rgba(23,55,53,.06) 31px 32px);
+  }
+
+  .future-note > span {
+    color: var(--mint);
+    font-size: 4rem;
+    font-weight: 200;
+  }
+
+  .future-note h3 {
+    font-family: var(--font-serif);
+    font-size: 2rem;
+  }
+
+  .future-note > p:last-child {
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 760px) {
+    .friend-grid { grid-template-columns: 1fr; }
+    .making-path { overflow: hidden; }
+  }
+</style>

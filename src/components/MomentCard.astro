@@ -1,0 +1,38 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import ResponsiveImage from './ResponsiveImage.astro';
+
+interface Props {
+  moment: CollectionEntry<'moments'>;
+  compact?: boolean;
+}
+
+const { moment, compact = false } = Astro.props;
+const [year, month] = moment.data.date.split('-');
+---
+
+<article class:list={['moment-card', compact && 'moment-card--compact']}>
+  <a class="moment-card__media" href={`/moments/${moment.id}/`} tabindex="-1" aria-hidden="true">
+    {moment.data.cover ? (
+      <ResponsiveImage
+        src={moment.data.cover.src}
+        alt=""
+        position={moment.data.cover.position}
+        sizes={compact ? '(max-width: 760px) 92vw, 30vw' : '(max-width: 760px) 92vw, 42vw'}
+      />
+    ) : (
+      <span class="text-only-cover">
+        <i aria-hidden="true">✦</i>
+        <span>一段没有照片<br />但仍然记得的故事</span>
+      </span>
+    )}
+  </a>
+  <div class="moment-card__body">
+    <p class="moment-date"><span>{year}</span> / {month}</p>
+    <h3><a href={`/moments/${moment.id}/`}>{moment.data.title}</a></h3>
+    <p>{moment.data.summary}</p>
+    <div class="tag-row" aria-label="标签">
+      {moment.data.tags.slice(0, 3).map((tag) => <span>{tag}</span>)}
+    </div>
+  </div>
+</article>

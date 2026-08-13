@@ -1,0 +1,155 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ResponsiveImage from '../components/ResponsiveImage.astro';
+
+const moments = (await getCollection('moments', ({ data }) => data.visibility === 'approved'))
+  .sort((a, b) => a.data.date.localeCompare(b.data.date) || a.data.order - b.data.order);
+
+const monthMap = new Map<string, typeof moments>();
+for (const moment of moments) {
+  const group = monthMap.get(moment.data.date) ?? [];
+  group.push(moment);
+  monthMap.set(moment.data.date, group);
+}
+const months = [...monthMap.entries()];
+---
+
+<BaseLayout title="时间线" description="从 2023 年至今，按月份浏览茸磺的制作、活动、朋友与旅行。">
+  <header class="page-intro timeline-intro">
+    <div>
+      <p class="eyebrow">MONTH BY MONTH</p>
+      <h1>时间线</h1>
+      <p class="lead">从第一个做毛的九月开始，沿月份向右滑动。同一个月内的故事按可编辑的顺序排列，今后也可以继续向轴的两端生长。</p>
+    </div>
+    <aside class="page-intro__note">
+      <p class="eyebrow">HOW TO EXPLORE</p>
+      <p>拖动画面、使用触控板或下方按钮。时间线支持键盘横向滚动，也保留普通链接进入每篇故事。</p>
+    </aside>
+  </header>
+
+  <section class="timeline-wrap" aria-labelledby="timeline-title">
+    <div class="timeline-toolbar">
+      <p id="timeline-title"><strong>{months.length}</strong> 个月份结点 · <strong>{moments.length}</strong> 段记录</p>
+      <div>
+        <button type="button" data-timeline-prev aria-label="向较早月份滚动">←</button>
+        <button type="button" data-timeline-next aria-label="向较晚月份滚动">→</button>
+      </div>
+    </div>
+
+    <div class="timeline-scroller" data-timeline-scroller tabindex="0" aria-label="茸磺的横向时间线">
+      <div class="timeline-track">
+        {months.map(([date, items]) => {
+          const [year, month] = date.split('-');
+          return (
+            <section class="timeline-month" aria-labelledby={`month-${date}`}>
+              <header class="month-marker">
+                <span aria-hidden="true"></span>
+                <h2 id={`month-${date}`}><strong>{year}</strong><small>{month} 月</small></h2>
+              </header>
+              <div class="month-stories">
+                {items.map((moment) => (
+                  <article class="timeline-card">
+                    {moment.data.cover ? (
+                      <a class="timeline-card__image" href={`/moments/${moment.id}/`} tabindex="-1" aria-hidden="true">
+                        <ResponsiveImage
+                          src={moment.data.cover.src}
+                          alt=""
+                          position={moment.data.cover.position}
+                          sizes="300px"
+                        />
+                      </a>
+                    ) : <div class="timeline-card__text-cover" aria-hidden="true">✦</div>}
+                    <div>
+                      <p>{moment.data.kind === 'making' ? 'WORKBENCH' : moment.data.kind === 'portrait' ? 'PORTRAIT' : 'MOMENT'}</p>
+                      <h3><a href={`/moments/${moment.id}/`}>{moment.data.title}</a></h3>
+                      <span>{moment.data.summary}</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          );
+        })}
+      </div>
+    </div>
+    <p class="timeline-hint" aria-hidden="true"><span>←</span> 按住并横向拖动 <span>→</span></p>
+  </section>
+</BaseLayout>
+
+<script>
+  const scroller = document.querySelector<HTMLElement>('[data-timeline-scroller]');
+  const previous = document.querySelector<HTMLButtonElement>('[data-timeline-prev]');
+  const next = document.querySelector<HTMLButtonElement>('[data-timeline-next]');
+
+  if (scroller) {
+    let dragging = false;
+    let startX = 0;
+    let startScroll = 0;
+
+    scroller.addEventListener('pointerdown', (event) => {
+      if ((event.target as HTMLElement).closest('a, button')) return;
+      dragging = true;
+      startX = event.clientX;
+      startScroll = scroller.scrollLeft;
+      scroller.setPointerCapture(event.pointerId);
+      scroller.classList.add('is-dragging');
+    });
+
+    scroller.addEventListener('pointermove', (event) => {
+      if (!dragging) return;
+      scroller.scrollLeft = startScroll - (event.clientX - startX);
+    });
+
+    const stopDragging = () => {
+      dragging = false;
+      scroller.classList.remove('is-dragging');
+    };
+    scroller.addEventListener('pointerup', stopDragging);
+    scroller.addEventListener('pointercancel', stopDragging);
+
+    previous?.addEventListener('click', () => scroller.scrollBy({ left: -720, behavior: 'smooth' }));
+    next?.addEventListener('click', () => scroller.scrollBy({ left: 720, behavior: 'smooth' }));
+  }
+</script>
+
+<style>
+  .timeline-wrap { padding:0 0 105px; }
+  .timeline-toolbar { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-bottom:20px; color:var(--ink-soft); font-size:.78rem; }
+  .timeline-toolbar p { margin:0; }
+  .timeline-toolbar strong { color:var(--ink); }
+  .timeline-toolbar > div { display:flex; gap:8px; }
+  .timeline-toolbar button { display:grid; width:42px; height:42px; place-items:center; border:1px solid var(--line); border-radius:50%; color:var(--ink); background:var(--surface); cursor:pointer; font-size:1.15rem; }
+  .timeline-toolbar button:hover { border-color:var(--ink); }
+  .timeline-scroller { width:100vw; margin-left:calc(50% - 50vw); overflow-x:auto; overscroll-behavior-inline:contain; scroll-padding-left:max(36px, calc((100vw - 1180px) / 2 + 24px)); scrollbar-color:var(--mint) transparent; cursor:grab; scroll-snap-type:x proximity; }
+  .timeline-scroller.is-dragging { cursor:grabbing; user-select:none; scroll-snap-type:none; }
+  .timeline-track { position:relative; display:flex; width:max-content; gap:28px; padding:0 max(36px, calc((100vw - 1180px) / 2 + 24px)) 32px 0; }
+  .timeline-track::before { position:absolute; top:66px; right:0; left:0; height:2px; background:linear-gradient(90deg,var(--sun),var(--mint),var(--sky),var(--violet)); content:""; opacity:.7; }
+  .timeline-month { width:330px; scroll-snap-align:start; }
+  .timeline-month:first-child { margin-left:max(36px, calc((100vw - 1180px) / 2 + 24px)); }
+  .month-marker { position:relative; height:118px; padding-top:13px; }
+  .month-marker > span { position:absolute; top:57px; left:4px; z-index:1; width:20px; height:20px; border:5px solid var(--paper); border-radius:50%; background:var(--ink); box-shadow:0 0 0 1px rgba(23,55,53,.22); }
+  .month-marker h2 { margin:0; }
+  .month-marker strong, .month-marker small { display:block; }
+  .month-marker strong { font-family:var(--font-serif); font-size:1.35rem; }
+  .month-marker small { margin-top:-3px; color:var(--ink-soft); font-size:.7rem; font-weight:500; letter-spacing:.08em; }
+  .month-stories { display:grid; gap:14px; padding-left:4px; }
+  .timeline-card { overflow:hidden; border:1px solid var(--line); border-radius:18px; background:rgba(255,253,247,.88); box-shadow:0 12px 34px rgba(23,55,53,.07); }
+  .timeline-card__image { display:block; height:190px; overflow:hidden; }
+  .timeline-card__image picture, .timeline-card__image :global(img) { height:100%; }
+  .timeline-card__text-cover { display:grid; height:88px; place-items:center; color:var(--violet); background:repeating-linear-gradient(0deg,rgba(255,238,90,.18) 0 24px,rgba(23,55,53,.05) 24px 25px); font-size:1.6rem; }
+  .timeline-card > div:last-child { padding:20px; }
+  .timeline-card p { margin-bottom:6px; color:#428079; font-size:.6rem; font-weight:800; letter-spacing:.16em; }
+  .timeline-card h3 { margin-bottom:10px; font-family:var(--font-serif); font-size:1.22rem; }
+  .timeline-card h3 a { text-decoration:none; }
+  .timeline-card > div > span { display:block; color:var(--ink-soft); font-size:.78rem; line-height:1.65; }
+  .timeline-hint { margin:20px 0 0; color:var(--ink-soft); font-size:.7rem; text-align:center; letter-spacing:.08em; }
+  .timeline-hint span { margin-inline:14px; color:var(--ink); }
+
+  @media (max-width:760px) {
+    .timeline-scroller { margin-left:calc(50% - 50vw); scroll-padding-left:22px; }
+    .timeline-track { padding-right:22px; }
+    .timeline-month:first-child { margin-left:22px; }
+    .timeline-month { width:min(84vw,330px); }
+  }
+</style>

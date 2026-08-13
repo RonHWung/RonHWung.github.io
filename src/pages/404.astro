@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="没有找到这一页">
+  <section class="not-found">
+    <p class="eyebrow">404 · LOST PAGE</p>
+    <h1>这页大概被尾巴扫走了。</h1>
+    <p>这里没有找到你要看的内容。可以回到首页，或者沿着时间线重新出发。</p>
+    <div>
+      <a class="button-link button-link--filled" href="/">返回首页</a>
+      <a class="button-link" href="/timeline/">打开时间线</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found { display:grid; min-height:70vh; place-content:center; max-width:800px; padding:80px 0; }
+  .not-found h1 { margin-bottom:20px; font-family:var(--font-serif); font-size:clamp(3rem,8vw,7rem); font-weight:620; letter-spacing:-.06em; }
+  .not-found > p:not(.eyebrow) { color:var(--ink-soft); font-size:1.05rem; }
+  .not-found > div { display:flex; flex-wrap:wrap; gap:12px; margin-top:20px; }
+</style>

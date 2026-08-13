@@ -1,0 +1,38 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import MomentCard from '../components/MomentCard.astro';
+import { collectionMeta, type CollectionKey } from '../data/site';
+
+const moments = (await getCollection('moments', ({ data }) => data.visibility === 'approved'))
+  .sort((a, b) => b.data.date.localeCompare(a.data.date) || b.data.order - a.data.order);
+const collectionKeys: CollectionKey[] = ['making', 'campus', 'journeys', 'celebrations', 'portraits'];
+---
+
+<BaseLayout title="沿途记录" description="按制作、校园、远行、庆典和写真阅读茸磺的生活记录。">
+  <header class="page-intro">
+    <div>
+      <p class="eyebrow">STORIES, RE-INDEXED</p>
+      <h1>沿途记录</h1>
+      <p class="lead">同一段经历不只有一种读法。这里把完整时间线重新按五个主题装订：手作、校园、远行、朋友与写真。</p>
+    </div>
+    <aside class="page-intro__note">
+      <p class="eyebrow">ANOTHER WAY</p>
+      <p>想从最早的月份一路看到现在？<br /><a href="/timeline/">打开横向时间线 →</a></p>
+    </aside>
+  </header>
+
+  {collectionKeys.map((key) => {
+    const meta = collectionMeta[key];
+    const items = moments.filter((moment) => moment.data.collections.includes(key));
+    return (
+      <section class="collection-block" id={key}>
+        <SectionHeading eyebrow={meta.eyebrow} title={meta.title} description={meta.description} />
+        <div class="moment-grid">
+          {items.map((moment) => <MomentCard {moment} compact />)}
+        </div>
+      </section>
+    );
+  })}
+</BaseLayout>

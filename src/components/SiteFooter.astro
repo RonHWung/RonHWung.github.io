@@ -1,0 +1,13 @@
+---
+import { site } from '../data/site';
+---
+
+<footer class="site-footer">
+  <div>
+    <p class="footer-note">谢谢你翻到这里。愿每一次创作，都能让想象离现实再近一点。</p>
+    <p class="copyright">© 2026 {site.author} · 内容保留全部权利 · 网站代码使用 MIT License</p>
+  </div>
+  <div class="footer-links" aria-label="外部链接">
+    {site.links.map((link) => <a href={link.href} target="_blank" rel="noreferrer">{link.label}</a>)}
+  </div>
+</footer>

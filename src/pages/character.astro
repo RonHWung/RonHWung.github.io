@@ -1,0 +1,112 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ResponsiveImage from '../components/ResponsiveImage.astro';
+---
+
+<BaseLayout title="茸磺档案" description="认识茸磺：一只草黄、薄荷绿与青蓝相间的毛毛龙。">
+  <header class="page-intro character-intro">
+    <div>
+      <p class="eyebrow">CHARACTER FILE · 001</p>
+      <h1>茸磺</h1>
+      <p class="lead">一只没有复杂世界观、但有一身鲜明颜色的毛毛龙。角色从画里出发，也被亲手做成了现实中的兽装。</p>
+    </div>
+    <aside class="page-intro__note">
+      <p class="eyebrow">QUICK FACTS</p>
+      <p><strong>种族</strong>　毛毛龙<br /><strong>生日</strong>　5 月 22 日<br /><strong>称呼</strong>　茸磺 / RonHWung</p>
+    </aside>
+  </header>
+
+  <section class="character-sheet">
+    <div class="reference-frame">
+      <span class="tape" aria-hidden="true"></span>
+      <ResponsiveImage
+        src="/media/character/ronghuang-reference"
+        alt="茸磺的正面、背面角色视图与配色色卡"
+        sizes="(max-width: 760px) 96vw, 53vw"
+        eager={true}
+      />
+    </div>
+    <div class="character-copy">
+      <p class="eyebrow">WHY THIS NAME?</p>
+      <h2>硫磺里，恰好藏着一小撮 <em>fur</em>。</h2>
+      <p>龙为什么能喷火呢？也许是因为吃下了许多含硫磺元素的矿石。硫磺的英文 <em>sulfur</em> 里又恰好藏着 <em>fur</em>——于是取“茸”与“磺”，合成了听起来很顺口的名字。</p>
+      <p>茸磺暂时没有一套必须遵守的宏大世界观。比起先写完设定，更喜欢让画、兽装和经历一点点为角色增加新的侧面。</p>
+    </div>
+  </section>
+
+  <section class="page-section feature-section">
+    <div class="feature-title">
+      <p class="eyebrow">APPEARANCE NOTES</p>
+      <h2>辨认一只茸磺</h2>
+    </div>
+    <div class="feature-list">
+      <article><span>01</span><h3>草黄与云纹</h3><p>身体以温暖的草黄色为主，脸部和腹部留白。身上有六条云纹般的花纹，手臂、小腿与腰侧还有环状和延伸纹样。</p></article>
+      <article><span>02</span><h3>从绿到蓝的长毛</h3><p>头发从薄荷绿渐变到青蓝，保持偏长、略蓬松的轮廓；眉毛也使用蓝色，让眼部更加清楚。</p></article>
+      <article><span>03</span><h3>虹彩的眼睛</h3><p>虹膜在蓝绿之间变化，瞳孔带紫红色；尾巴和局部花纹也可以出现柔和虹彩，而不是单一的纯色块。</p></article>
+      <article><span>04</span><h3>半透明蓝角</h3><p>一对长角呈蓝紫色玻璃质感，带轻微透明效果。它们和耳朵一起构成了茸磺最醒目的头部轮廓。</p></article>
+    </div>
+  </section>
+
+  <section class="page-section palette-section">
+    <div>
+      <p class="eyebrow">COLOR SWATCHES</p>
+      <h2>设定图里的基础色</h2>
+      <p>以下数值由原设定色卡取样，适合界面与平涂参考。阴影、毛尖和虹彩细节可以在这些基础上自然变化。</p>
+    </div>
+    <div class="swatches" aria-label="茸磺配色色卡">
+      <div style="--swatch:#FEB2AE"><i></i><strong>#FEB2AE</strong><span>珊瑚粉</span></div>
+      <div style="--swatch:#FFEE5A"><i></i><strong>#FFEE5A</strong><span>日光黄</span></div>
+      <div style="--swatch:#A1FBA3"><i></i><strong>#A1FBA3</strong><span>新芽绿</span></div>
+      <div style="--swatch:#51D9CC"><i></i><strong>#51D9CC</strong><span>薄荷青</span></div>
+      <div style="--swatch:#1AC4F5"><i></i><strong>#1AC4F5</strong><span>明亮蓝</span></div>
+      <div class="rainbow"><i></i><strong>IRIDESCENT</strong><span>虹彩变化</span></div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .character-sheet {
+    display: grid;
+    grid-template-columns: 1.12fr .88fr;
+    align-items: center;
+    gap: clamp(45px, 8vw, 110px);
+    padding: 50px 0 110px;
+  }
+
+  .reference-frame {
+    position: relative;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 18px 46px 22px 42px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    transform: rotate(-1deg);
+  }
+
+  .reference-frame picture { border-radius: 10px 34px 12px 28px; overflow: hidden; }
+  .reference-frame picture :global(img) { object-fit: contain; background: #8ffff1; }
+  .reference-frame .tape { position:absolute; top:-13px; left:42%; z-index:2; width:110px; height:30px; background:rgba(255,255,255,.68); transform:rotate(4deg); }
+  .character-copy h2, .feature-title h2, .palette-section h2 { font-family:var(--font-serif); font-size:clamp(2.3rem,5vw,4.8rem); font-weight:620; letter-spacing:-.05em; }
+  .character-copy h2 em { color:var(--violet); font-style:normal; }
+  .character-copy > p:not(.eyebrow) { color:var(--ink-soft); font-size:1.04rem; }
+  .feature-section { display:grid; grid-template-columns:.7fr 1.3fr; gap:70px; }
+  .feature-list { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+  .feature-list article { padding:28px; border:1px solid var(--line); border-radius:var(--radius-md); background:rgba(255,253,247,.65); }
+  .feature-list article > span { color:#348078; font-size:.7rem; font-weight:800; letter-spacing:.15em; }
+  .feature-list h3 { margin:18px 0 10px; font-family:var(--font-serif); font-size:1.45rem; }
+  .feature-list p { margin:0; color:var(--ink-soft); font-size:.88rem; }
+  .palette-section { display:grid; grid-template-columns:.7fr 1.3fr; gap:70px; }
+  .palette-section > div:first-child > p:last-child { color:var(--ink-soft); }
+  .swatches { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .swatches > div { padding:10px 10px 16px; border:1px solid var(--line); border-radius:16px; background:var(--surface); }
+  .swatches i { display:block; height:96px; margin-bottom:12px; border-radius:10px; background:var(--swatch); }
+  .swatches .rainbow i { background:linear-gradient(135deg,#feb2ae,#ffee5a,#a1fba3,#51d9cc,#1ac4f5,#9a6adf); }
+  .swatches strong, .swatches span { display:block; }
+  .swatches strong { font-size:.76rem; letter-spacing:.06em; }
+  .swatches span { color:var(--ink-soft); font-size:.7rem; }
+
+  @media (max-width: 760px) {
+    .character-sheet, .feature-section, .palette-section { grid-template-columns:1fr; gap:42px; }
+    .feature-list, .swatches { grid-template-columns:repeat(2,1fr); }
+  }
+</style>

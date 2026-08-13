@@ -1,0 +1,30 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import ResponsiveImage from './ResponsiveImage.astro';
+
+interface Props {
+  artwork: CollectionEntry<'artworks'>;
+  index: number;
+}
+
+const { artwork, index } = Astro.props;
+---
+
+<article class="artwork-card">
+  <ResponsiveImage
+    src={artwork.data.image.src}
+    alt={artwork.data.image.alt}
+    position={artwork.data.image.position}
+    sizes="(max-width: 760px) 94vw, (max-width: 1100px) 46vw, 31vw"
+  />
+  <div class="artwork-meta">
+    <p><span>{String(index + 1).padStart(2, '0')}</span> / DIGITAL ART</p>
+    {artwork.data.video ? (
+      <a href={artwork.data.video} target="_blank" rel="noreferrer">
+        看创作视频 <span aria-hidden="true">↗</span>
+      </a>
+    ) : (
+      <span>{artwork.data.tools.join(' + ')}</span>
+    )}
+  </div>
+</article>

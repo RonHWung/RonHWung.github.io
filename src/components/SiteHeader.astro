@@ -1,0 +1,26 @@
+---
+import { navigation } from '../data/site';
+
+const currentPath = Astro.url.pathname;
+const isActive = (href: string) => href === '/' ? currentPath === '/' : currentPath.startsWith(href);
+---
+
+<header class="site-header">
+  <a class="brand" href="/" aria-label="茸磺首页">
+    <span class="brand-mark" aria-hidden="true">
+      <i></i><i></i><i></i>
+    </span>
+    <span>
+      <strong>茸磺</strong>
+      <small>RONHWUNG</small>
+    </span>
+  </a>
+
+  <nav aria-label="主要导航">
+    {navigation.map((item) => (
+      <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+        {item.label}
+      </a>
+    ))}
+  </nav>
+</header>

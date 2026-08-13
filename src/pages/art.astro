@@ -1,0 +1,43 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ArtworkCard from '../components/ArtworkCard.astro';
+
+const artworks = (await getCollection('artworks')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout title="画室" description="茸磺的数字绘画作品与创作视频。">
+  <header class="page-intro">
+    <div>
+      <p class="eyebrow">DIGITAL ART</p>
+      <h1>画室</h1>
+      <p class="lead">有些画先来自一个模糊的概念。标题和解释可以以后慢慢补上，眼下先把它们按喜欢的顺序挂在这里。</p>
+    </div>
+    <aside class="page-intro__note">
+      <p class="eyebrow">TOOLS ON DESK</p>
+      <p>Photoshop / Windows<br />Procreate / iPad</p>
+    </aside>
+  </header>
+
+  <section class="page-section">
+    <div class="artwork-grid art-page-grid">
+      {artworks.map((artwork, index) => <ArtworkCard {artwork} {index} />)}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .art-page-grid :global(.artwork-card:nth-child(3)) {
+    grid-column: span 5;
+  }
+
+  .art-page-grid :global(.artwork-card:nth-child(4)) {
+    grid-column: span 7;
+  }
+
+  @media (max-width: 760px) {
+    .art-page-grid :global(.artwork-card:nth-child(n)) {
+      grid-column: auto;
+    }
+  }
+</style>
