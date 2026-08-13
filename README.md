@@ -29,7 +29,7 @@ pnpm dev --host
 
 ## 发布
 
-推送到 `main` 只保存公开源码，不会自动部署。确认内容可以正式上线后，在 GitHub Actions 中手动运行 **Deploy to GitHub Pages** 工作流。
+仓库内的 Astro 部署工作流不会随 `main` 推送自动运行。正式上线前，先在仓库 **Settings → Pages → Build and deployment** 中将 Source 切换为 **GitHub Actions**，再在 Actions 中手动运行 **Deploy to GitHub Pages** 工作流。
 
 ## 授权
 

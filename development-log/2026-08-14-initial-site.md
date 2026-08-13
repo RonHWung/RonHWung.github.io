@@ -66,6 +66,12 @@
 - 如果未来开放友链，应单独设计数据结构和审核规则，不要直接把私人联系方式写入页面。
 - 正式上线前再做一次可见内容复核，然后手动触发 GitHub Pages 部署。
 
+## 首次远端留档状态
+
+脱敏后的源码已经保存到公开仓库 `main` 分支。首次推送后，GitHub 按当前仓库设置自动尝试了旧式 Jekyll Pages 构建；构建失败后部署步骤被跳过，站点没有上线。仓库内配置的 Astro Pages 工作流仍为手动触发，没有在这次推送中执行。
+
+正式上线时需要先在仓库 **Settings → Pages → Build and deployment** 中把 Source 改为 **GitHub Actions**，随后手动运行 **Deploy to GitHub Pages**。这能避免继续调用不适用于本项目的 Jekyll 构建。
+
 ## 常用命令
 
 ```bash
