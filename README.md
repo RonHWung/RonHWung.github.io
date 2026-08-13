@@ -25,6 +25,12 @@ pnpm dev --host
 
 发布前可运行 `pnpm validate`，它会执行类型检查、静态构建，并核对生成页面中的站内链接与媒体文件。
 
+阶段记录、技术决策与后续交接事项保存在 [development-log/](./development-log/)；其中只记录可以公开的信息。
+
+## 发布
+
+推送到 `main` 只保存公开源码，不会自动部署。确认内容可以正式上线后，在 GitHub Actions 中手动运行 **Deploy to GitHub Pages** 工作流。
+
 ## 授权
 
 网站程序代码使用 [MIT License](./LICENSE)。除非文件中另有说明，网站文字、绘画、照片、角色设定与其他内容不包含在 MIT 授权范围内，版权归 RonHWung 或相应权利人所有，未经许可不得转载或再利用。
