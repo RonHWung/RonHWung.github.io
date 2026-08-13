@@ -25,11 +25,11 @@ pnpm dev --host
 
 发布前可运行 `pnpm validate`，它会执行类型检查、静态构建，并核对生成页面中的站内链接与媒体文件。
 
-阶段记录、技术决策与后续交接事项保存在 [development-log/](./development-log/)；其中只记录可以公开的信息。
+阶段记录、技术决策与后续交接事项按日期保存在 [`development-log/`](./development-log/2026-08-14-initial-site.md)；其中只记录可以公开的信息。
 
 ## 发布
 
-仓库内的 Astro 部署工作流不会随 `main` 推送自动运行。正式上线前，先在仓库 **Settings → Pages → Build and deployment** 中将 Source 切换为 **GitHub Actions**，再在 Actions 中手动运行 **Deploy to GitHub Pages** 工作流。
+在仓库 **Settings → Pages → Build and deployment** 中将 Source 设为 **GitHub Actions** 后，推送到 `main` 会自动构建并部署；也可以在 Actions 中手动运行 **Deploy to GitHub Pages** 工作流。
 
 ## 授权
 

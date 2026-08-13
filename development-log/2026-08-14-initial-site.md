@@ -1,5 +1,9 @@
 # 2026-08-14：首个可预览版本
 
+记录时间：2026-08-14（Asia/Shanghai）
+
+后续开发记录继续使用 `YYYY-MM-DD-short-topic.md` 形式的新文件；本目录不使用 `README.md` 代替日志。
+
 ## 本阶段结果
 
 完成了茸磺个人主页的首个静态版本。当前站点以绘画和兽装制作为核心，同时设置独立的角色档案、主题经历集合、横向时间线及经历详情页。
@@ -21,7 +25,7 @@
 - 内容：Astro Content Collections 校验 Markdown frontmatter。
 - 样式：仓库内维护的响应式 CSS，不依赖第三方前端组件库。
 - 图片：公开目录只保存 WebP 衍生图，并同时提供小图和大图。
-- 部署：GitHub Actions 工作流仅允许手动触发，推送不会自动上线。
+- 部署：GitHub Actions 在推送 `main` 时自动构建，也保留手动触发入口。
 
 主要位置：
 
@@ -64,13 +68,13 @@
 - 逐篇复核文字语气、事件归类、照片选择及时间线顺序。
 - 补充新的绘画、兽装制作过程或短文时，沿用 `CONTENT_GUIDE.md` 中的数据格式。
 - 如果未来开放友链，应单独设计数据结构和审核规则，不要直接把私人联系方式写入页面。
-- 正式上线前再做一次可见内容复核，然后手动触发 GitHub Pages 部署。
+- 正式上线前再做一次可见内容复核，并确认 Pages 发布源为 GitHub Actions。
 
 ## 首次远端留档状态
 
-脱敏后的源码已经保存到公开仓库 `main` 分支。首次推送后，GitHub 按当前仓库设置自动尝试了旧式 Jekyll Pages 构建；构建失败后部署步骤被跳过，站点没有上线。仓库内配置的 Astro Pages 工作流仍为手动触发，没有在这次推送中执行。
+脱敏后的源码已经保存到公开仓库 `main` 分支。首次推送后，GitHub 按当时的仓库设置自动尝试了旧式 Jekyll Pages 构建；构建失败后部署步骤被跳过，站点没有上线。当时仓库内配置的 Astro Pages 工作流尚未随推送触发。
 
-正式上线时需要先在仓库 **Settings → Pages → Build and deployment** 中把 Source 改为 **GitHub Actions**，随后手动运行 **Deploy to GitHub Pages**。这能避免继续调用不适用于本项目的 Jekyll 构建。
+正式上线时需要先在仓库 **Settings → Pages → Build and deployment** 中把 Source 改为 **GitHub Actions**。设置完成后的 `main` 推送会运行 Astro 部署流程，避免继续调用不适用于本项目的 Jekyll 构建。
 
 ## 常用命令
 
