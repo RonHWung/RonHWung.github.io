@@ -43,7 +43,7 @@ const friendMaking = making.filter((item) => item.data.makingFor === 'friend');
     />
     <div class="moment-grid friend-grid">
       {friendMaking.map((moment) => <MomentCard {moment} />)}
-      <article class="future-note">
+      <article class="future-note" data-interactive>
         <span aria-hidden="true">＋</span>
         <p class="eyebrow">A FUTURE NOTE</p>
         <h3>下一篇工作台记录</h3>

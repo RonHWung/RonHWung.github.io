@@ -10,7 +10,8 @@ interface Props {
 const { artwork, index } = Astro.props;
 ---
 
-<article class="artwork-card">
+<article class="artwork-card" data-interactive>
+  <span class="artwork-card__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
   <ResponsiveImage
     src={artwork.data.image.src}
     alt={artwork.data.image.alt}

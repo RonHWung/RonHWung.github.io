@@ -25,7 +25,7 @@
 - 内容：Astro Content Collections 校验 Markdown frontmatter。
 - 样式：仓库内维护的响应式 CSS，不依赖第三方前端组件库。
 - 图片：公开目录只保存 WebP 衍生图，并同时提供小图和大图。
-- 部署：GitHub Actions 在推送 `main` 时自动构建，也保留手动触发入口。
+- 部署：GitHub Actions 工作流仅保留手动触发入口，日常推送不会自动上线。
 
 主要位置：
 
@@ -74,7 +74,7 @@
 
 脱敏后的源码已经保存到公开仓库 `main` 分支。首次推送后，GitHub 按当时的仓库设置自动尝试了旧式 Jekyll Pages 构建；构建失败后部署步骤被跳过，站点没有上线。当时仓库内配置的 Astro Pages 工作流尚未随推送触发。
 
-正式上线时需要先在仓库 **Settings → Pages → Build and deployment** 中把 Source 改为 **GitHub Actions**。设置完成后的 `main` 推送会运行 Astro 部署流程，避免继续调用不适用于本项目的 Jekyll 构建。
+正式上线时需要先在仓库 **Settings → Pages → Build and deployment** 中把 Source 改为 **GitHub Actions**，随后手动运行 **Deploy to GitHub Pages**。这能避免继续调用不适用于本项目的 Jekyll 构建，并保留上线前的人工确认步骤。
 
 ## 常用命令
 

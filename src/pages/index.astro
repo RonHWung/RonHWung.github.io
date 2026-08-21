@@ -17,7 +17,11 @@ const moments = (await getCollection('moments', ({ data }) => data.visibility ==
   <section class="hero">
     <div class="hero-copy">
       <p class="eyebrow">HELLO, I AM RONHWUNG</p>
-      <h1>把想象画下来，<br />再亲手做成<em>毛茸茸</em>的现实。</h1>
+      <h1>
+        <span class="hero-line hero-line--first">把想象画下来，</span>
+        <span class="hero-line">再亲手做成</span>
+        <span class="hero-line"><em>毛茸茸</em>的现实。</span>
+      </h1>
       <p class="hero-lead">
         我是茸磺，一只会画画、也会做毛的毛毛龙。这里收着我的作品、工作台，以及一路遇见的朋友和故事。
       </p>
@@ -26,19 +30,26 @@ const moments = (await getCollection('moments', ({ data }) => data.visibility ==
         <a class="button-link" href="/making/">看看怎样做毛</a>
       </div>
     </div>
-    <div class="hero-art" aria-label="茸磺绘画作品">
-      <span class="tape" aria-hidden="true"></span>
+    <div class="hero-art" aria-label="茸磺绘画作品" data-interactive>
+      <span class="hero-art__label" aria-hidden="true">VISUAL FILE // 001</span>
+      <span class="hero-art__scan" aria-hidden="true"></span>
       <ResponsiveImage
         src="/media/art/01-code-bloom"
         alt="茸磺站在代码与机械臂之间，周围漂浮着彩色光点的插画"
         sizes="(max-width: 760px) 92vw, 40vw"
         eager={true}
       />
-      <span class="caption">Photoshop × Procreate</span>
+      <span class="caption"><i></i> Photoshop × Procreate</span>
+    </div>
+    <div class="hero-telemetry" aria-hidden="true">
+      <span><b>01</b> DRAW</span>
+      <span><b>02</b> BUILD</span>
+      <span><b>03</b> RECORD</span>
+      <i>NODE // RH-0522 · ONLINE</i>
     </div>
   </section>
 
-  <section class="home-section">
+  <section class="home-section" id="selected-works">
     <SectionHeading
       eyebrow="SELECTED WORKS"
       title="最近喜欢的几幅画"
@@ -51,21 +62,21 @@ const moments = (await getCollection('moments', ({ data }) => data.visibility ==
     </div>
   </section>
 
-  <section class="home-section">
+  <section class="home-section" id="skills">
     <SectionHeading
       eyebrow="DRAW IT · MAKE IT"
       title="同一只毛毛龙的两种诞生方式"
       description="画笔把角色带到纸上，针线、毛布和一次次修整再把它带进现实。"
     />
     <div class="skill-split">
-      <article class="skill-panel skill-panel--art">
+      <article class="skill-panel skill-panel--art" data-interactive>
         <p class="eyebrow">01 · DIGITAL ARTIST</p>
         <h3>在画布上，让模糊的概念慢慢显形。</h3>
         <p>Photoshop 与 Procreate 是我的主要工具。这里不急着为每幅作品解释答案，只保留画面和创作过程。</p>
         <a class="button-link" href="/art/">走进画室 <span aria-hidden="true">↗</span></a>
         <span class="scribble" aria-hidden="true"></span>
       </article>
-      <article class="skill-panel skill-panel--making">
+      <article class="skill-panel skill-panel--making" data-interactive>
         <p class="eyebrow">02 · FURSUIT MAKER</p>
         <h3>从一张版型，到真正能戴上的茸磺。</h3>
         <p>裁毛、缝合、修形，也记录小意外和朋友伸出的手。自己的兽装与帮助朋友制作，是两条各自完整的线。</p>
@@ -75,7 +86,7 @@ const moments = (await getCollection('moments', ({ data }) => data.visibility ==
     </div>
   </section>
 
-  <section class="home-section">
+  <section class="home-section" id="recent-stories">
     <SectionHeading
       eyebrow="ALONG THE WAY"
       title="沿途拾起的几页"
@@ -88,7 +99,7 @@ const moments = (await getCollection('moments', ({ data }) => data.visibility ==
     </div>
   </section>
 
-  <section class="home-section home-character">
+  <section class="home-section home-character" id="character-preview">
     <div>
       <p class="eyebrow">MEET RONHWUNG</p>
       <h2>一只因为硫磺与 <em>fur</em><br />而得到名字的毛毛龙。</h2>

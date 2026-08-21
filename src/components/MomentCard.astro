@@ -11,7 +11,8 @@ const { moment, compact = false } = Astro.props;
 const [year, month] = moment.data.date.split('-');
 ---
 
-<article class:list={['moment-card', compact && 'moment-card--compact']}>
+<article class:list={['moment-card', compact && 'moment-card--compact']} data-interactive>
+  <span class="card-corner" aria-hidden="true"></span>
   <a class="moment-card__media" href={`/moments/${moment.id}/`} tabindex="-1" aria-hidden="true">
     {moment.data.cover ? (
       <ResponsiveImage
@@ -28,7 +29,7 @@ const [year, month] = moment.data.date.split('-');
     )}
   </a>
   <div class="moment-card__body">
-    <p class="moment-date"><span>{year}</span> / {month}</p>
+    <p class="moment-date"><span>{year}</span> / {month}<i>LOG</i></p>
     <h3><a href={`/moments/${moment.id}/`}>{moment.data.title}</a></h3>
     <p>{moment.data.summary}</p>
     <div class="tag-row" aria-label="标签">

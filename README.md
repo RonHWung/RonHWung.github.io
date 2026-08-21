@@ -15,6 +15,8 @@ pnpm dev
 pnpm dev --host
 ```
 
+Windows 下也可以直接双击根目录的 [`preview-local.cmd`](./preview-local.cmd)：脚本会在服务就绪后自动打开浏览器。
+
 ## 内容维护
 
 - `src/content/artworks/`：绘画作品
@@ -29,7 +31,7 @@ pnpm dev --host
 
 ## 发布
 
-在仓库 **Settings → Pages → Build and deployment** 中将 Source 设为 **GitHub Actions** 后，推送到 `main` 会自动构建并部署；也可以在 Actions 中手动运行 **Deploy to GitHub Pages** 工作流。
+推送到 `main` 不会自动发布网站。最终确认内容后，在仓库 **Settings → Pages → Build and deployment** 中将 Source 设为 **GitHub Actions**，再到 Actions 手动运行 **Deploy to GitHub Pages** 工作流。
 
 ## 授权
 

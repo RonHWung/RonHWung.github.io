@@ -7,4 +7,18 @@ export default defineConfig({
   build: {
     format: 'directory',
   },
+  vite: {
+    environments: {
+      astro: {
+        optimizeDeps: {
+          include: ['picomatch'],
+        },
+      },
+    },
+    ssr: {
+      optimizeDeps: {
+        include: ['picomatch'],
+      },
+    },
+  },
 });

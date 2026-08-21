@@ -119,28 +119,29 @@ const months = [...monthMap.entries()];
   .timeline-toolbar p { margin:0; }
   .timeline-toolbar strong { color:var(--ink); }
   .timeline-toolbar > div { display:flex; gap:8px; }
-  .timeline-toolbar button { display:grid; width:42px; height:42px; place-items:center; border:1px solid var(--line); border-radius:50%; color:var(--ink); background:var(--surface); cursor:pointer; font-size:1.15rem; }
-  .timeline-toolbar button:hover { border-color:var(--ink); }
+  .timeline-toolbar button { display:grid; width:48px; height:38px; place-items:center; border:1px solid var(--ink); border-radius:0; color:var(--ink); background:rgba(248,250,246,.78); cursor:pointer; font-size:1.15rem; clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%); transition:color 180ms ease,background 180ms ease,transform 180ms ease; }
+  .timeline-toolbar button:hover { color:white; border-color:var(--ink); background:var(--ink); transform:translateY(-2px); }
   .timeline-scroller { width:100vw; margin-left:calc(50% - 50vw); overflow-x:auto; overscroll-behavior-inline:contain; scroll-padding-left:max(36px, calc((100vw - 1180px) / 2 + 24px)); scrollbar-color:var(--mint) transparent; cursor:grab; scroll-snap-type:x proximity; }
   .timeline-scroller.is-dragging { cursor:grabbing; user-select:none; scroll-snap-type:none; }
   .timeline-track { position:relative; display:flex; width:max-content; gap:28px; padding:0 max(36px, calc((100vw - 1180px) / 2 + 24px)) 32px 0; }
-  .timeline-track::before { position:absolute; top:66px; right:0; left:0; height:2px; background:linear-gradient(90deg,var(--sun),var(--mint),var(--sky),var(--violet)); content:""; opacity:.7; }
+  .timeline-track::before { position:absolute; top:66px; right:0; left:0; height:3px; background:repeating-linear-gradient(90deg,var(--tech-bright) 0 70px,rgba(17,27,27,.17) 70px 78px); content:""; opacity:.9; }
   .timeline-month { width:330px; scroll-snap-align:start; }
   .timeline-month:first-child { margin-left:max(36px, calc((100vw - 1180px) / 2 + 24px)); }
   .month-marker { position:relative; height:118px; padding-top:13px; }
-  .month-marker > span { position:absolute; top:57px; left:4px; z-index:1; width:20px; height:20px; border:5px solid var(--paper); border-radius:50%; background:var(--ink); box-shadow:0 0 0 1px rgba(23,55,53,.22); }
+  .month-marker > span { position:absolute; top:56px; left:4px; z-index:1; width:20px; height:20px; border:5px solid var(--paper); border-radius:0; background:var(--tech); box-shadow:0 0 0 1px rgba(17,27,27,.3),0 0 15px rgba(0,173,191,.26); transform:rotate(45deg); }
   .month-marker h2 { margin:0; }
   .month-marker strong, .month-marker small { display:block; }
-  .month-marker strong { font-family:var(--font-serif); font-size:1.35rem; }
+  .month-marker strong { font-family:var(--font-display); font-size:1.45rem; font-weight:900; }
   .month-marker small { margin-top:-3px; color:var(--ink-soft); font-size:.7rem; font-weight:500; letter-spacing:.08em; }
   .month-stories { display:grid; gap:14px; padding-left:4px; }
-  .timeline-card { overflow:hidden; border:1px solid var(--line); border-radius:18px; background:rgba(255,253,247,.88); box-shadow:0 12px 34px rgba(23,55,53,.07); }
+  .timeline-card { position:relative; overflow:hidden; border:1px solid rgba(17,27,27,.24); border-radius:0; background:rgba(248,250,246,.9); box-shadow:8px 8px 0 rgba(17,27,27,.06); clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%); transition:border-color 180ms ease,box-shadow 180ms ease,transform 180ms ease; }
+  .timeline-card:hover { border-color:var(--tech); box-shadow:11px 11px 0 rgba(0,173,191,.13); transform:translateY(-3px); }
   .timeline-card__image { display:block; height:190px; overflow:hidden; }
   .timeline-card__image picture, .timeline-card__image :global(img) { height:100%; }
   .timeline-card__text-cover { display:grid; height:88px; place-items:center; color:var(--violet); background:repeating-linear-gradient(0deg,rgba(255,238,90,.18) 0 24px,rgba(23,55,53,.05) 24px 25px); font-size:1.6rem; }
   .timeline-card > div:last-child { padding:20px; }
   .timeline-card p { margin-bottom:6px; color:#428079; font-size:.6rem; font-weight:800; letter-spacing:.16em; }
-  .timeline-card h3 { margin-bottom:10px; font-family:var(--font-serif); font-size:1.22rem; }
+  .timeline-card h3 { margin-bottom:10px; font-family:var(--font-display); font-size:1.22rem; font-weight:850; }
   .timeline-card h3 a { text-decoration:none; }
   .timeline-card > div > span { display:block; color:var(--ink-soft); font-size:.78rem; line-height:1.65; }
   .timeline-hint { margin:20px 0 0; color:var(--ink-soft); font-size:.7rem; text-align:center; letter-spacing:.08em; }
