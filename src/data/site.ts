@@ -14,7 +14,7 @@ export const navigation = [
   { label: '首页', href: '/' },
   { label: '画室', href: '/art/' },
   { label: '做毛', href: '/making/' },
-  { label: '辨认一只茸磺', href: '/character/' },
+  { label: '茸磺档案', href: '/character/' },
   { label: '沿途记录', href: '/journey/' },
   { label: '时间线', href: '/timeline/' },
 ];
