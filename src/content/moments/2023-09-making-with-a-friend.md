@@ -18,7 +18,7 @@ images:
   - src: /media/moments/202309/making-with-friend/img-3407
     alt: 尚未剃毛的棕色兽装头部
   - src: /media/moments/202309/making-with-friend/img-3408
-    alt: 带有透气孔的兽装头骨
+    alt: 正在打版型的兽装头骨
   - src: /media/moments/202309/making-with-friend/img-3409
     alt: 分开制作的毛绒指垫零件
 featured: true

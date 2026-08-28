@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ResponsiveImage from '../components/ResponsiveImage.astro';
 ---
 
-<BaseLayout title="茸磺档案" description="认识茸磺：一只草黄、薄荷绿与青蓝相间的毛毛龙。">
+<BaseLayout title="辨认一只茸磺" description="认识茸磺：一只草黄、薄荷绿与青蓝相间的毛毛龙。">
   <header class="page-intro character-intro">
     <div>
       <p class="eyebrow">CHARACTER FILE · 001</p>
@@ -40,10 +40,10 @@ import ResponsiveImage from '../components/ResponsiveImage.astro';
       <h2>辨认一只茸磺</h2>
     </div>
     <div class="feature-list">
-      <article data-interactive><span>01</span><h3>草黄与云纹</h3><p>身体以温暖的草黄色为主，脸部和腹部留白。身上有六条云纹般的花纹，手臂、小腿与腰侧还有环状和延伸纹样。</p></article>
-      <article data-interactive><span>02</span><h3>从绿到蓝的长毛</h3><p>头发从薄荷绿渐变到青蓝，保持偏长、略蓬松的轮廓；眉毛也使用蓝色，让眼部更加清楚。</p></article>
-      <article data-interactive><span>03</span><h3>虹彩的眼睛</h3><p>虹膜在蓝绿之间变化，瞳孔带紫红色；尾巴和局部花纹也可以出现柔和虹彩，而不是单一的纯色块。</p></article>
-      <article data-interactive><span>04</span><h3>半透明蓝角</h3><p>一对长角呈蓝紫色玻璃质感，带轻微透明效果。它们和耳朵一起构成了茸磺最醒目的头部轮廓。</p></article>
+      <article data-interactive><span>01</span><h3>草黄与印痕</h3><p>身体以温暖的草黄色为主，脸部和腹部留白。身体上分布着六处“液态星空”般的印痕，手臂、小腿与腰侧还有环状和延伸纹样。</p></article>
+      <article data-interactive><span>02</span><h3>从绿到蓝的长毛</h3><p>头发从薄荷绿渐变到青蓝，保持偏长、略蓬松的轮廓（早期也有不带额外长发的版本）；眉毛也使用蓝色，让眼部更加清楚。</p></article>
+      <article data-interactive><span>03</span><h3>虹彩的眼睛</h3><p>虹膜在蓝绿之间变化，瞳孔带紫红色。尾巴与身体上的六处印痕则呈现带有深浅流动和星点的“液态星空”，而不是彩虹渐变。</p></article>
+      <article data-interactive><span>04</span><h3>蓝绿色的半透明龙角</h3><p>一对长角呈蓝绿色的半透明质感。它们和耳朵一起构成了茸磺最醒目的头部轮廓。</p></article>
     </div>
   </section>
 
@@ -51,7 +51,7 @@ import ResponsiveImage from '../components/ResponsiveImage.astro';
     <div>
       <p class="eyebrow">COLOR SWATCHES</p>
       <h2>设定图里的基础色</h2>
-      <p>以下数值由原设定色卡取样，适合界面与平涂参考。阴影、毛尖和虹彩细节可以在这些基础上自然变化。</p>
+      <p>以下数值由原设定色卡取样，适合界面与平涂参考。阴影、毛尖与“液态星空”细节可以在这些基础上自然变化。</p>
     </div>
     <div class="swatches" aria-label="茸磺配色色卡">
       <div style="--swatch:#FEB2AE"><i></i><strong>#FEB2AE</strong><span>珊瑚粉</span></div>
@@ -59,7 +59,7 @@ import ResponsiveImage from '../components/ResponsiveImage.astro';
       <div style="--swatch:#A1FBA3"><i></i><strong>#A1FBA3</strong><span>新芽绿</span></div>
       <div style="--swatch:#51D9CC"><i></i><strong>#51D9CC</strong><span>薄荷青</span></div>
       <div style="--swatch:#1AC4F5"><i></i><strong>#1AC4F5</strong><span>明亮蓝</span></div>
-      <div class="rainbow"><i></i><strong>IRIDESCENT</strong><span>虹彩变化</span></div>
+      <div class="liquid-space"><i></i><strong>LIQUID STARS</strong><span>液态星空</span></div>
     </div>
   </section>
 </BaseLayout>
@@ -100,7 +100,7 @@ import ResponsiveImage from '../components/ResponsiveImage.astro';
   .swatches { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
   .swatches > div { padding:10px 10px 16px; border:1px solid var(--line); border-radius:16px; background:var(--surface); }
   .swatches i { display:block; height:96px; margin-bottom:12px; border-radius:10px; background:var(--swatch); }
-  .swatches .rainbow i { background:linear-gradient(135deg,#feb2ae,#ffee5a,#a1fba3,#51d9cc,#1ac4f5,#9a6adf); }
+  .swatches .liquid-space i { background:radial-gradient(circle at 24% 30%,#fff 0 1px,transparent 2px),radial-gradient(circle at 70% 62%,#a1fba3 0 2px,transparent 3px),radial-gradient(circle at 52% 18%,#51d9cc 0 1px,transparent 2px),linear-gradient(135deg,#091632,#173f69 35%,#442273 68%,#0f8da4); background-size:31px 31px,47px 47px,37px 37px,auto; }
   .swatches strong, .swatches span { display:block; }
   .swatches strong { font-size:.76rem; letter-spacing:.06em; }
   .swatches span { color:var(--ink-soft); font-size:.7rem; }

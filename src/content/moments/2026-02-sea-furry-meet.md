@@ -11,7 +11,7 @@ cover:
   alt: 茸磺在楼梯旁抬爪并眨眼的照片
 images:
   - src: /media/moments/202602/sea-furry-meet/dsc-3455
-    alt: 茸磺站在料理台后，面前摆着一条长条玩偶
+    alt: 料理台后的大尾立厨师
   - src: /media/moments/202602/sea-furry-meet/pess7460
     alt: 茸磺在楼梯旁抬爪并眨眼的照片
 ---

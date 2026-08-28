@@ -756,15 +756,6 @@ main {
   font-size: 1.08rem;
 }
 
-.detail-cover {
-  height: min(68vw, 760px);
-  margin: 25px 0 70px;
-  border-radius: var(--radius-lg);
-  background: var(--paper-deep);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-
 .detail-layout {
   display: grid;
   grid-template-columns: 0.55fr 1fr;
@@ -798,50 +789,9 @@ main {
   margin: 0;
 }
 
-.photo-gallery {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 22px;
-  padding: 70px 0 105px;
-  border-top: 1px solid var(--line);
-}
-
-.photo-gallery figure {
-  margin: 0;
-}
-
-.photo-gallery figure:nth-child(3n + 1) {
-  grid-column: span 2;
-}
-
-.photo-gallery picture {
-  height: min(58vw, 660px);
-  border-radius: var(--radius-md);
-  background: var(--paper-deep);
-  overflow: hidden;
-}
-
-.photo-gallery figure:not(:nth-child(3n + 1)) picture {
-  height: min(43vw, 520px);
-}
-
-.photo-gallery figcaption {
-  padding: 10px 4px 0;
-  color: var(--ink-soft);
-  font-size: 0.78rem;
-}
-
 .collection-block {
   padding: 82px 0;
   border-top: 1px solid var(--line);
-}
-
-.collection-block:nth-child(even) .moment-card:nth-child(2) {
-  transform: translateY(22px);
-}
-
-.collection-block:nth-child(even) .moment-card:nth-child(2):hover {
-  transform: translateY(18px);
 }
 
 .empty-state {
@@ -931,8 +881,7 @@ main {
   .artwork-grid,
   .moment-grid,
   .skill-split,
-  .detail-layout,
-  .photo-gallery {
+  .detail-layout {
     grid-template-columns: 1fr;
   }
 
@@ -975,32 +924,12 @@ main {
     font-size: clamp(3.2rem, 17vw, 5.6rem);
   }
 
-  .detail-cover {
-    height: 82vw;
-    margin-bottom: 52px;
-  }
-
   .detail-layout {
     gap: 42px;
   }
 
   .detail-aside {
     order: 2;
-  }
-
-  .photo-gallery figure,
-  .photo-gallery figure:nth-child(n) {
-    grid-column: auto;
-  }
-
-  .photo-gallery picture,
-  .photo-gallery figure:not(:nth-child(3n + 1)) picture {
-    height: 92vw;
-  }
-
-  .collection-block:nth-child(even) .moment-card:nth-child(2),
-  .collection-block:nth-child(even) .moment-card:nth-child(2):hover {
-    transform: none;
   }
 
   .site-footer {
@@ -1743,12 +1672,43 @@ h3 {
   clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
   transform: perspective(1000px) rotateX(var(--panel-rx, 0deg)) rotateY(var(--panel-ry, 0deg));
   transition: box-shadow 220ms ease, transform 220ms ease, border-color 220ms ease;
+  cursor: pointer;
+}
+
+.moment-card::after {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border: 2px solid var(--tech-bright);
+  box-shadow: inset 0 0 28px rgba(0, 212, 231, 0.2), 0 0 22px rgba(0, 212, 231, 0.1);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.985);
+  transition: opacity 180ms ease, transform 180ms ease;
 }
 
 .moment-card:hover {
   border-color: rgba(0, 173, 191, 0.66);
-  box-shadow: 13px 13px 0 rgba(0, 173, 191, 0.13);
+  box-shadow: 13px 13px 0 rgba(0, 173, 191, 0.16), 0 0 28px rgba(0, 212, 231, 0.11);
   transform: perspective(1000px) rotateX(var(--panel-rx, 0deg)) rotateY(var(--panel-ry, 0deg)) translateY(-4px);
+}
+
+.moment-card:hover::after,
+.moment-card:focus-within::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.moment-card__link {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+}
+
+.moment-card__link:focus-visible {
+  outline: 3px solid var(--signal);
+  outline-offset: -6px;
 }
 
 .card-corner {
@@ -1867,7 +1827,7 @@ h3 {
   font-family: var(--font-display);
   font-weight: 950;
   line-height: 0.9;
-  letter-spacing: -0.07em;
+  letter-spacing: 0.015em;
 }
 
 .page-intro__note {
@@ -1897,14 +1857,12 @@ h3 {
   font-family: var(--font-display);
   font-weight: 950;
   line-height: 0.93;
+  letter-spacing: 0.005em;
 }
 
-.detail-cover,
-.photo-gallery picture {
-  border: 1px solid rgba(17, 27, 27, 0.25);
-  border-radius: 0;
-  box-shadow: 12px 12px 0 rgba(0, 173, 191, 0.09);
-  clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px));
+.detail-hero h1 {
+  max-width: 1100px;
+  font-size: clamp(3rem, 6vw, 5.6rem);
 }
 
 .prose {
@@ -2015,14 +1973,6 @@ body main .future-note h3 {
 }
 
 body main .swatches i { border-radius: 0; }
-
-body main .collection-block:nth-child(even) .moment-card:nth-child(2) {
-  transform: translateY(22px);
-}
-
-body main .collection-block:nth-child(even) .moment-card:nth-child(2):hover {
-  transform: translateY(17px);
-}
 
 @media (max-width: 1100px) {
   .header-status { display: none; }
@@ -2162,11 +2112,6 @@ body main .collection-block:nth-child(even) .moment-card:nth-child(2):hover {
 
   .site-footer {
     padding: 38px 24px;
-  }
-
-  body main .collection-block:nth-child(even) .moment-card:nth-child(2),
-  body main .collection-block:nth-child(even) .moment-card:nth-child(2):hover {
-    transform: none;
   }
 
   .moment-card,

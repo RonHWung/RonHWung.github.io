@@ -104,7 +104,7 @@ const socialImage = new URL(image, Astro.site);
         });
       });
 
-      const revealTargets = document.querySelectorAll<HTMLElement>('.home-section, .page-section, .collection-block, .character-sheet, .timeline-wrap, .detail-layout, .photo-gallery');
+      const revealTargets = document.querySelectorAll<HTMLElement>('.home-section, .page-section, .collection-block, .character-sheet, .timeline-wrap, .detail-layout, .adaptive-gallery');
       if (!reducedMotion.matches && 'IntersectionObserver' in window) {
         const observer = new IntersectionObserver((entries) => {
           entries.forEach((entry) => {

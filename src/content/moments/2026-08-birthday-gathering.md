@@ -1,7 +1,7 @@
 ---
 title: 紧接着兽聚的生日轰趴
 date: 2026-08
-order: 40
+order: 20
 kind: event
 tags: [生日, 朋友, 轰趴]
 collections: [celebrations]

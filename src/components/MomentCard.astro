@@ -12,8 +12,9 @@ const [year, month] = moment.data.date.split('-');
 ---
 
 <article class:list={['moment-card', compact && 'moment-card--compact']} data-interactive>
+  <a class="moment-card__link" href={`/moments/${moment.id}/`} aria-label={`阅读：${moment.data.title}`}></a>
   <span class="card-corner" aria-hidden="true"></span>
-  <a class="moment-card__media" href={`/moments/${moment.id}/`} tabindex="-1" aria-hidden="true">
+  <div class="moment-card__media" aria-hidden="true">
     {moment.data.cover ? (
       <ResponsiveImage
         src={moment.data.cover.src}
@@ -27,10 +28,10 @@ const [year, month] = moment.data.date.split('-');
         <span>一段没有照片<br />但仍然记得的故事</span>
       </span>
     )}
-  </a>
+  </div>
   <div class="moment-card__body">
     <p class="moment-date"><span>{year}</span> / {month}<i>LOG</i></p>
-    <h3><a href={`/moments/${moment.id}/`}>{moment.data.title}</a></h3>
+    <h3>{moment.data.title}</h3>
     <p>{moment.data.summary}</p>
     <div class="tag-row" aria-label="标签">
       {moment.data.tags.slice(0, 3).map((tag) => <span>{tag}</span>)}

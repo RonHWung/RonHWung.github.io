@@ -6,6 +6,8 @@ interface Props {
   sizes?: string;
   position?: string;
   eager?: boolean;
+  width?: number;
+  height?: number;
 }
 
 const {
@@ -15,6 +17,8 @@ const {
   sizes = '(max-width: 760px) 100vw, 50vw',
   position = 'center',
   eager = false,
+  width,
+  height,
 } = Astro.props;
 ---
 
@@ -30,6 +34,8 @@ const {
     loading={eager ? 'eager' : 'lazy'}
     fetchpriority={eager ? 'high' : 'auto'}
     decoding="async"
+    {width}
+    {height}
     style={`object-position: ${position}`}
   />
 </picture>

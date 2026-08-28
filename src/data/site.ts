@@ -14,7 +14,7 @@ export const navigation = [
   { label: '首页', href: '/' },
   { label: '画室', href: '/art/' },
   { label: '做毛', href: '/making/' },
-  { label: '茸磺档案', href: '/character/' },
+  { label: '辨认一只茸磺', href: '/character/' },
   { label: '沿途记录', href: '/journey/' },
   { label: '时间线', href: '/timeline/' },
 ];
@@ -38,7 +38,7 @@ export const collectionMeta = {
   celebrations: {
     eyebrow: 'D · TOGETHER',
     title: '朋友们与小小庆典',
-    description: '蛋糕、桌游、礼物和告别，生活被这些小小仪式认真地标记下来。',
+    description: '蛋糕、桌游、礼物和相聚，生活被这些小小仪式认真地标记下来。',
   },
   portraits: {
     eyebrow: 'E · PORTRAITS',

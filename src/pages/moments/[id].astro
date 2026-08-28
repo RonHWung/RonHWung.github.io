@@ -1,7 +1,7 @@
 ---
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ResponsiveImage from '../../components/ResponsiveImage.astro';
+import AdaptiveGallery from '../../components/AdaptiveGallery.astro';
 import { collectionMeta, type CollectionKey } from '../../data/site';
 
 export async function getStaticPaths() {
@@ -28,14 +28,7 @@ const collectionLabels = moment.data.collections.map((key) => collectionMeta[key
   </header>
 
   {moment.data.cover ? (
-    <ResponsiveImage
-      class="detail-cover"
-      src={moment.data.cover.src}
-      alt={moment.data.cover.alt}
-      position={moment.data.cover.position}
-      sizes="(max-width: 760px) 96vw, 1180px"
-      eager={true}
-    />
+    <AdaptiveGallery images={[moment.data.cover]} primary />
   ) : (
     <div class="detail-text-cover">
       <span aria-hidden="true">✦</span>
@@ -58,14 +51,7 @@ const collectionLabels = moment.data.collections.map((key) => collectionMeta[key
   </section>
 
   {remainingImages.length > 0 && (
-    <section class="photo-gallery" aria-label="更多照片">
-      {remainingImages.map((image) => (
-        <figure>
-          <ResponsiveImage src={image.src} alt={image.alt} position={image.position} sizes="(max-width: 760px) 96vw, 58vw" />
-          <figcaption>{image.alt}</figcaption>
-        </figure>
-      ))}
-    </section>
+    <AdaptiveGallery images={remainingImages} />
   )}
 </BaseLayout>
 

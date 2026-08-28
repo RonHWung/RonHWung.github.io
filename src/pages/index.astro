@@ -50,19 +50,6 @@ const moments = (await getCollection('moments', ({ data }) => data.visibility ==
     </div>
   </section>
 
-  <section class="home-section" id="selected-works">
-    <SectionHeading
-      eyebrow="SELECTED WORKS"
-      title="最近喜欢的几幅画"
-      description="有些想法还没找到合适的语言，就先让颜色、角色和画面自己说话。"
-      href="/art/"
-      linkLabel="完整画室"
-    />
-    <div class="artwork-grid">
-      {artworks.slice(0, 3).map((artwork, index) => <ArtworkCard {artwork} {index} />)}
-    </div>
-  </section>
-
   <section class="home-section" id="skills">
     <SectionHeading
       eyebrow="DRAW IT · MAKE IT"
@@ -105,13 +92,26 @@ const moments = (await getCollection('moments', ({ data }) => data.visibility ==
       <p class="eyebrow">MEET RONHWUNG</p>
       <h2>一只因为硫磺与 <em>fur</em><br />而得到名字的毛毛龙。</h2>
       <p>茸磺没有复杂的世界观。草黄、薄荷绿与青蓝组成他的样子；至于名字，是从一段关于龙为什么能喷火的玩笑开始的。</p>
-      <a class="button-link" href="/character/">查看茸磺档案 <span aria-hidden="true">↗</span></a>
+      <a class="button-link" href="/character/">辨认一只茸磺 <span aria-hidden="true">↗</span></a>
     </div>
     <ResponsiveImage
       src="/media/character/ronghuang-reference"
       alt="茸磺角色设定图，包含正反面造型和头部细节"
       sizes="(max-width: 760px) 92vw, 38vw"
     />
+  </section>
+
+  <section class="home-section" id="selected-works">
+    <SectionHeading
+      eyebrow="SELECTED WORKS"
+      title="最近喜欢的几幅画"
+      description="有些想法还没找到合适的语言，就先让颜色、角色和画面自己说话。"
+      href="/art/"
+      linkLabel="完整画室"
+    />
+    <div class="artwork-grid">
+      {artworks.slice(0, 3).map((artwork, index) => <ArtworkCard {artwork} {index} />)}
+    </div>
   </section>
 </BaseLayout>
 

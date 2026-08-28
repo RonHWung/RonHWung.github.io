@@ -1,7 +1,7 @@
 ---
 title: 狸想小聚
 date: 2026-08
-order: 20
+order: 30
 kind: event
 tags: [朋友, 游戏, 上海]
 collections: [celebrations]
