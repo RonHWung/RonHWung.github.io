@@ -21,9 +21,12 @@ Windows 下也可以直接双击根目录的 [`preview-local.cmd`](./preview-loc
 
 - `src/content/artworks/`：绘画作品
 - `src/content/moments/`：活动与生活片段
+- `src/data/friends.ts`：友链站名、头像、签名与跳转地址
 - `public/media/`：经过网页优化并清除元数据的公开图片
 
 内容通过 Astro Content Collections 校验。调整同一个月内的时间线顺序时，修改条目的 `order` 数字即可。字段说明与新增示例见 [CONTENT_GUIDE.md](./CONTENT_GUIDE.md)。
+
+欢迎朋友们通过 [Pull Request](https://github.com/RonHWung/RonHWung.github.io/pulls) 或 [Issue](https://github.com/RonHWung/RonHWung.github.io/issues) 补充、更新友链资料。
 
 发布前可运行 `pnpm validate`，它会执行类型检查、静态构建，并核对生成页面中的站内链接与媒体文件。
 

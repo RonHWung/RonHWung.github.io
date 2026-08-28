@@ -1,0 +1,216 @@
+---
+import type { FriendLink } from '../data/friends';
+
+interface Props {
+  friend: FriendLink;
+  index: number;
+}
+
+const { friend, index } = Astro.props;
+---
+
+<article class="friend-card" id={friend.id} data-interactive>
+  <a
+    class="friend-card__link"
+    href={friend.href}
+    target="_blank"
+    rel="noreferrer"
+    aria-label={`访问 ${friend.name}：${friend.siteName}`}
+  ></a>
+  <span class="friend-card__corner" aria-hidden="true"></span>
+  <div class="friend-card__avatar" aria-hidden="true">
+    <span>{friend.name.slice(0, 1)}</span>
+    <img
+      src={friend.avatar}
+      alt=""
+      width="112"
+      height="112"
+      loading="lazy"
+      decoding="async"
+      referrerpolicy="no-referrer"
+    />
+  </div>
+  <div class="friend-card__body">
+    <p class="friend-card__index">LINK // {String(index + 1).padStart(2, '0')}</p>
+    <h2>{friend.siteName}</h2>
+    <p class="friend-card__name"><span aria-hidden="true">#</span> {friend.name}</p>
+    {friend.signature && <p class="friend-card__signature">{friend.signature}</p>}
+  </div>
+  <span class="friend-card__exit" aria-hidden="true">↗</span>
+</article>
+
+<style>
+  .friend-card {
+    position: relative;
+    display: grid;
+    min-width: 0;
+    min-height: 410px;
+    grid-template-rows: 148px 1fr;
+    border: 1px solid rgba(17, 27, 27, .23);
+    color: var(--ink);
+    background: rgba(248, 250, 246, .88);
+    box-shadow: 9px 9px 0 rgba(17, 27, 27, .055);
+    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+    cursor: pointer;
+    transform: perspective(1000px) rotateX(var(--panel-rx, 0deg)) rotateY(var(--panel-ry, 0deg));
+    transition: border-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+  }
+
+  .friend-card::before {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    border: 2px solid var(--tech-bright);
+    box-shadow: inset 0 0 28px rgba(0, 212, 231, .2), 0 0 22px rgba(0, 212, 231, .1);
+    content: "";
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(.985);
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+
+  .friend-card:hover,
+  .friend-card:focus-within {
+    border-color: rgba(0, 173, 191, .66);
+    box-shadow: 13px 13px 0 rgba(0, 173, 191, .16), 0 0 28px rgba(0, 212, 231, .11);
+    transform: perspective(1000px) rotateX(var(--panel-rx, 0deg)) rotateY(var(--panel-ry, 0deg)) translateY(-4px);
+  }
+
+  .friend-card:hover::before,
+  .friend-card:focus-within::before {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .friend-card__link {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+  }
+
+  .friend-card__link:focus-visible {
+    outline: 3px solid var(--signal);
+    outline-offset: -6px;
+  }
+
+  .friend-card__corner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 4;
+    width: 18px;
+    height: 18px;
+    background: var(--tech-bright);
+    clip-path: polygon(0 0, 100% 100%, 100% 0);
+  }
+
+  .friend-card__avatar {
+    position: relative;
+    display: grid;
+    width: 112px;
+    height: 112px;
+    place-items: center;
+    align-self: end;
+    justify-self: center;
+    border: 2px solid var(--tech);
+    border-radius: 50%;
+    color: var(--tech);
+    background: linear-gradient(145deg, rgba(255, 238, 90, .45), rgba(81, 217, 204, .48));
+    box-shadow: 7px 7px 0 rgba(0, 173, 191, .12);
+    overflow: hidden;
+  }
+
+  .friend-card__avatar::after {
+    position: absolute;
+    inset: 5px;
+    z-index: 2;
+    border: 1px solid rgba(248, 250, 246, .7);
+    border-radius: inherit;
+    content: "";
+    pointer-events: none;
+  }
+
+  .friend-card__avatar span {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 900;
+  }
+
+  .friend-card__avatar img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 500ms cubic-bezier(.2, .7, .2, 1);
+  }
+
+  .friend-card:hover .friend-card__avatar img {
+    transform: scale(1.06);
+  }
+
+  .friend-card__body {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    padding: 22px 25px 30px;
+    text-align: center;
+  }
+
+  .friend-card__index {
+    margin-bottom: 10px;
+    color: var(--tech);
+    font-family: var(--font-display);
+    font-size: .56rem;
+    font-weight: 900;
+    letter-spacing: .15em;
+  }
+
+  .friend-card h2 {
+    margin-bottom: 10px;
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 2vw, 1.35rem);
+    font-weight: 850;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+  }
+
+  .friend-card__name {
+    margin-bottom: 0;
+    color: #51706e;
+    font-size: .9rem;
+    font-weight: 700;
+  }
+
+  .friend-card__name span {
+    color: var(--tech);
+  }
+
+  .friend-card__signature {
+    width: 100%;
+    margin: auto 0 0;
+    padding-top: 19px;
+    border-top: 1px solid rgba(17, 27, 27, .12);
+    color: var(--ink-soft);
+    font-size: .78rem;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+  }
+
+  .friend-card__exit {
+    position: absolute;
+    right: 17px;
+    bottom: 13px;
+    color: rgba(17, 27, 27, .28);
+    font-family: var(--font-display);
+    font-size: .8rem;
+  }
+
+  @media (max-width: 680px) {
+    .friend-card {
+      min-height: 380px;
+    }
+  }
+</style>

@@ -60,6 +60,15 @@ visibility: approved
 
 公开图片使用 WebP，每个图片标识应有 `-sm.webp` 和 `-lg.webp` 两种尺寸。提交前应清除 EXIF、GPS、设备信息与不需要公开的文件名；描述朋友时默认不写昵称和账号，除非已经获得明确许可。
 
+## 友链
+
+友链集中维护在 `src/data/friends.ts`。每项包括稳定的 `id`、朋友名字 `name`、页面标题 `siteName`、跳转地址 `href`、头像 `avatar` 和可选签名 `signature`。
+
+- 远程头像可直接填写完整的 HTTPS 地址；页面请求头像时不会发送本站 Referer。
+- 本地头像可放在 `public/media/friends/`，并把 `avatar` 写成 `/media/friends/example.webp`。本地公开前仍需清理元数据并转换为 WebP。
+- 没有合适公开签名时省略 `signature`，卡片会自动调整留白。
+- moment 正文只有在朋友明确授权后才加入名字与链接；未能从材料中确认身份时不要根据照片猜测。
+
 完成修改后运行：
 
 ```bash

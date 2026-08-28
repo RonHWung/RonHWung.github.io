@@ -2050,6 +2050,7 @@ body main .swatches i { border-radius: 0; }
 
   .site-header nav a {
     display: inline-flex;
+    flex: 0 0 auto;
     min-width: auto;
     align-items: baseline;
     gap: 5px;

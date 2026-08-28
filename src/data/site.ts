@@ -17,6 +17,7 @@ export const navigation = [
   { label: '茸磺档案', href: '/character/' },
   { label: '沿途记录', href: '/journey/' },
   { label: '时间线', href: '/timeline/' },
+  { label: '友链', href: '/friends/' },
 ];
 
 export const collectionMeta = {
