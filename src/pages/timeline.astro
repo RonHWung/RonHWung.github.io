@@ -142,7 +142,8 @@ const months = [...monthMap.entries()];
   .timeline-card__link { position:absolute; inset:0; z-index:5; }
   .timeline-card__link:focus-visible { outline:3px solid var(--signal); outline-offset:-5px; }
   .timeline-card__image { display:block; height:190px; overflow:hidden; }
-  .timeline-card__image picture, .timeline-card__image :global(img) { height:100%; }
+  .timeline-card__image :global(picture), .timeline-card__image :global(img) { width:100%; height:100%; }
+  .timeline-card__image :global(img) { object-fit:cover !important; }
   .timeline-card__text-cover { display:grid; height:88px; place-items:center; color:var(--violet); background:repeating-linear-gradient(0deg,rgba(255,238,90,.18) 0 24px,rgba(23,55,53,.05) 24px 25px); font-size:1.6rem; }
   .timeline-card > div:last-child { padding:20px; }
   .timeline-card p { margin-bottom:6px; color:#428079; font-size:.6rem; font-weight:800; letter-spacing:.16em; }

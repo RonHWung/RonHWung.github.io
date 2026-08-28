@@ -525,8 +525,13 @@ main {
 
 .moment-card__media picture,
 .moment-card__media img {
+  width: 100%;
   height: 100%;
   transition: transform 500ms cubic-bezier(.2,.7,.2,1);
+}
+
+.moment-card__media img {
+  object-fit: cover !important;
 }
 
 .moment-card:hover .moment-card__media img {
