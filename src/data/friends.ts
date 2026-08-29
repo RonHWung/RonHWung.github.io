@@ -3,7 +3,7 @@ export interface FriendLink {
   name: string;
   siteName: string;
   href: string;
-  avatar: string;
+  avatar?: string;
   signature?: string;
 }
 
@@ -86,5 +86,59 @@ export const friends: FriendLink[] = [
     href: 'https://space.bilibili.com/107776766',
     avatar: 'https://i2.hdslb.com/bfs/face/978132e93c9c4c3ca1e12d17a8849407cc6755f4.jpg',
     signature: '祝大家都变成闪闪发光的自己！',
+  },
+  {
+    id: 'xiaotian',
+    name: '晓天',
+    siteName: '晓天的浮空岛',
+    href: 'https://autumnhid.com/',
+    avatar: 'https://res.cloudinary.com/dekmp7ltk/image/upload/v1735644431/jingui180-180_igfgze.png',
+    signature: '欢迎来到晓天的个人博客！',
+  },
+  {
+    id: 'qingyan',
+    name: '青焰',
+    siteName: '千年古树Oldtree // Bilibili',
+    href: 'https://space.bilibili.com/179024514',
+    avatar: 'https://i0.hdslb.com/bfs/face/52bfc4211f74575472959f9983c9c0de41fcc332.jpg',
+    signature: '一只鸽子咕咕咕',
+  },
+  {
+    id: 'yutian',
+    name: '雨田',
+    siteName: 'furontier // Fur Affinity',
+    href: 'https://www.furaffinity.net/user/furounter/',
+  },
+  {
+    id: 'baiaisi',
+    name: '白艾思',
+    siteName: '白艾思_ice // Bilibili',
+    href: 'https://space.bilibili.com/319147124',
+    avatar: 'https://i2.hdslb.com/bfs/face/e23635892907e7a8ed41b4c46ef4cd783cf0d81e.jpg',
+    signature: '这里是艾思～很高兴冰到你。',
+  },
+  {
+    id: 'luoluo',
+    name: '罗罗',
+    siteName: 'lmmmz // Bilibili',
+    href: 'https://space.bilibili.com/3682420',
+    avatar: 'https://i1.hdslb.com/bfs/face/4051591e56174d0cd8423e6ea945d327201fcbcf.jpg',
+    signature: '我是个性开放的人，不是个性开放的人。',
+  },
+  {
+    id: 'yuming',
+    name: '玉茗',
+    siteName: '猎手巴洛 // Bilibili',
+    href: 'https://space.bilibili.com/1589503346',
+    avatar: 'https://i2.hdslb.com/bfs/face/3fb8365e367be54899ff526d7850b9a54e4f46cf.jpg',
+    signature: '热爱学习、热爱游戏、热爱生活。',
+  },
+  {
+    id: 'chuyang',
+    name: '貙瑒',
+    siteName: '貙瑒 // X',
+    href: 'https://x.com/ChuYangPhy',
+    avatar: 'https://pbs.twimg.com/profile_images/2088934455599882241/1yQXuQuF_200x200.jpg',
+    signature: 'Physics · Violin · Classical Music · Furry',
   },
 ];
