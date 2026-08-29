@@ -108,6 +108,7 @@ export const friends: FriendLink[] = [
     name: '雨田',
     siteName: 'furontier // Fur Affinity',
     href: 'https://www.furaffinity.net/user/furounter/',
+    avatar: 'https://a.furaffinity.net/1768038090/furounter.gif',
   },
   {
     id: 'baiaisi',
