@@ -4,6 +4,7 @@ export interface FriendLink {
   siteName: string;
   href: string;
   avatar?: string;
+  fallbackAvatar?: string;
   signature?: string;
 }
 
@@ -109,6 +110,7 @@ export const friends: FriendLink[] = [
     siteName: 'furontier // Fur Affinity',
     href: 'https://www.furaffinity.net/user/furounter/',
     avatar: 'https://a.furaffinity.net/1768038090/furounter.gif',
+    fallbackAvatar: '/media/friends/furounter.webp',
   },
   {
     id: 'baiaisi',

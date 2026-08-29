@@ -20,6 +20,17 @@ const { friend, index } = Astro.props;
   <span class="friend-card__corner" aria-hidden="true"></span>
   <div class="friend-card__avatar" aria-hidden="true">
     <span>{friend.name.slice(0, 1)}</span>
+    {friend.fallbackAvatar && (
+      <img
+        src={friend.fallbackAvatar}
+        alt=""
+        width="112"
+        height="112"
+        loading="lazy"
+        decoding="async"
+        onerror="this.remove()"
+      />
+    )}
     {friend.avatar && (
       <img
         src={friend.avatar}

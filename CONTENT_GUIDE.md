@@ -62,10 +62,11 @@ visibility: approved
 
 ## 友链
 
-友链集中维护在 `src/data/friends.ts`。每项包括稳定的 `id`、朋友名字 `name`、页面标题 `siteName`、跳转地址 `href`、头像 `avatar` 和可选签名 `signature`。
+友链集中维护在 `src/data/friends.ts`。每项包括稳定的 `id`、朋友名字 `name`、页面标题 `siteName`、跳转地址 `href`、头像 `avatar`，以及可选的本地回退头像 `fallbackAvatar` 和签名 `signature`。
 
 - 远程头像可直接填写完整的 HTTPS 地址；页面请求头像时不会发送本站 Referer。
 - 本地头像可放在 `public/media/friends/`，并把 `avatar` 写成 `/media/friends/example.webp`。本地公开前仍需清理元数据并转换为 WebP。
+- 远程头像可能受防盗链影响时，可同时设置 `fallbackAvatar`；页面会依次尝试远程头像、本地回退图和姓名首字占位。
 - 没有可稳定访问的公开头像时可以省略 `avatar`，卡片会显示朋友名字的首字占位；没有合适公开签名时省略 `signature`，卡片会自动调整留白。
 - moment 正文只有在朋友明确授权后才加入名字与链接；未能从材料中确认身份时不要根据照片猜测。
 
