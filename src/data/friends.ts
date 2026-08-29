@@ -144,4 +144,4 @@ export const friends: FriendLink[] = [
     avatar: 'https://pbs.twimg.com/profile_images/2088934455599882241/1yQXuQuF_200x200.jpg',
     signature: 'Physics · Violin · Classical Music · Furry',
   },
-];
+].sort((left, right) => left.id.localeCompare(right.id, 'en'));

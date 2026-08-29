@@ -13,7 +13,7 @@ images:
   - src: /media/moments/202608/extreme-furry-meet/2345955
     alt: 许多毛毛角色与朋友在酒店会场内合照
   - src: /media/moments/202608/extreme-furry-meet/fhjv3964
-    alt: 茸磺与赤弦拥抱合照
+    alt: 茸磺与赤弦的合照
 ---
 
-八月参加极兽聚。酒店会场里挤进了很长一排角色，也和[赤弦](https://github.com/Chisen-Lupus)留下一张更近、更松弛的双人照。大型合影记录规模，小小的合影记录相遇。
+八月参加极兽聚。酒店会场里挤进了很长一排角色，能和很多朋友再次相见很开心，也和[赤弦](https://github.com/Chisen-Lupus)留下了一张双人照。大型合影记录规模，小小的合影记录相遇。

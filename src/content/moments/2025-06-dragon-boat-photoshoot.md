@@ -8,12 +8,12 @@ collections: [campus, portraits]
 summary: 端午小聚借用了校内摄影棚，除了合照，也玩起了手机围圈与龙舟头饰的拍摄点子。
 cover:
   src: /media/moments/202506/dragon-boat-photoshoot/img-1812
-  alt: 两位毛毛角色戴着彩色龙舟装饰，在摄影棚内合照
+  alt: 茸磺和玉茗戴着彩色龙舟装饰，在摄影棚内合照
 images:
   - src: /media/moments/202506/dragon-boat-photoshoot/img-1795
     alt: 一群毛毛朋友在摄影棚灰色背景前合照
   - src: /media/moments/202506/dragon-boat-photoshoot/img-1812
-    alt: 两位毛毛角色戴着彩色龙舟装饰，在摄影棚内合照
+    alt: 茸磺和玉茗戴着彩色龙舟装饰，在摄影棚内合照
   - src: /media/moments/202506/dragon-boat-photoshoot/img-1920
     alt: 手机围成一圈展示角色图片，旁边放着龙舟头饰
 featured: true
