@@ -14,6 +14,7 @@ import { friends } from '../data/friends';
     <aside class="page-intro__note">
       <p class="eyebrow">REMOTE SIGNAL</p>
       <p>头像与签名取自朋友们公开的个人主页；公开资料更新时，以对方页面为准。</p>
+      <p class="friends-contact-note">如需修改、增删友链，欢迎提交 Pull Request、Issue，或通过其他方式联系我。</p>
     </aside>
   </header>
 
@@ -53,6 +54,14 @@ import { friends } from '../data/friends';
     font-size: 1.05rem;
     line-height: 1.9;
     overflow-wrap: anywhere;
+  }
+
+  .friends-contact-note {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(17, 27, 27, .14);
+    font-size: .9rem;
+    line-height: 1.75;
   }
 
   .friends-section {

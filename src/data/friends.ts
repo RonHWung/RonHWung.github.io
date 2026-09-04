@@ -129,6 +129,14 @@ export const friends: FriendLink[] = [
     signature: '我是个性开放的人，不是个性开放的人。',
   },
   {
+    id: 'muyue',
+    name: '木月',
+    siteName: '木月Official // Bilibili',
+    href: 'https://space.bilibili.com/1903238685',
+    avatar: 'https://i0.hdslb.com/bfs/face/e8106bbbb8962f542a83afe6f047376ff46fb776.jpg',
+    signature: '小狗一只，是调酒师！',
+  },
+  {
     id: 'yuming',
     name: '玉茗',
     siteName: '猎手巴洛 // Bilibili',
