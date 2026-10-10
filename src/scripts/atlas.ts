@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { createAtlasLabels, HOME_ANGLE, HOME_TARGET_Z } from './atlas-labels';
 import { createAtlasEffects } from './atlas-effects';
+import atlasModel from '../data/atlas-model.json';
 
 export async function initAtlas() {
   const world = document.querySelector<HTMLElement>('[data-atlas]');
@@ -146,7 +147,7 @@ export async function initAtlas() {
     floor.rotation.x = -Math.PI/2; floor.position.y = -.14; floor.receiveShadow = true; scene.add(floor);
     const draco = new DRACOLoader(); draco.setDecoderPath('/models/draco/');
     const loader = new GLTFLoader(); loader.setDRACOLoader(draco);
-    const gltf = await loader.loadAsync('/models/ronghuang-atlas.glb'); draco.dispose();
+    const gltf = await loader.loadAsync('/models/ronghuang-atlas.glb?v='+atlasModel.version); draco.dispose();
     if (software) {
       const shadow = await new THREE.TextureLoader().loadAsync('/models/atlas-shadow.webp');
       shadow.colorSpace = THREE.NoColorSpace; gltf.scene.updateMatrixWorld(true);
@@ -179,7 +180,7 @@ export async function initAtlas() {
     renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true;
 
     const labels = createAtlasLabels(triggers.filter(t => t.classList.contains('atlas-node')),world.querySelector<SVGSVGElement>('[data-atlas-connectors]')!);
-    const effects = createAtlasEffects(scene,camera);
+    const effects = createAtlasEffects(gltf.scene,gltf.animations);
     const destinations: Record<string,string> = {pavilion:'character',workshop:'skills',gallery:'works',archive:'timeline',camp:'recent',communications:'friends'};
     type Signal = { strength: {value:number}; time: {value:number} };
     const entities = new Map<string,{meshes:THREE.Mesh[]; signals:Signal[]}>();
@@ -203,12 +204,14 @@ export async function initAtlas() {
           // The station terrace starts at x=12.6; its western bridge shares
           // these material batches but lies outside the station highlight.
           : key === 'friends' ? 'step(12.5,atlasPosition.x)' : '1.0';
-        const sweep = key === 'about' ? '(atlasPosition.x + atlasPosition.z)' : 'atlasPosition.y';
         shader.fragmentShader = shader.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 atlasPosition;\nuniform float atlasStrength;\nuniform float atlasTime;')
-          .replace('#include <opaque_fragment>','#include <opaque_fragment>\nfloat atlasMask = '+mask+';\nfloat atlasBand = pow(max(0.0, sin('+sweep+' * 3.0 - atlasTime * 2.3)), 14.0);\nfloat atlasPulse = 0.5 + 0.5 * sin(atlasTime * 2.0);\ngl_FragColor.rgb += atlasStrength * atlasMask * vec3(0.025, 0.26, 0.22) * (0.35 + atlasPulse * 0.15 + atlasBand * 0.7);');
+          .replace('#include <opaque_fragment>','#include <opaque_fragment>\nfloat atlasMask = '+mask+';\ngl_FragColor.rgb += atlasStrength * atlasMask * vec3(0.01, 0.08, 0.06);');
+        if(source.name==='woven-canvas')shader.fragmentShader=shader.fragmentShader.replace(
+          '#include <dithering_fragment>',
+          'float weave=sin(atlasPosition.x*145.0)*sin(atlasPosition.z*145.0);\ngl_FragColor.rgb *= 0.975 + 0.025*weave;\n#include <dithering_fragment>');
       };
       material.customProgramCacheKey = () => key === 'about' ? 'atlas-field-v1'
-        : key === 'friends' ? 'atlas-signal-tower-v1' : 'atlas-entity-v1';
+        : key === 'friends' ? 'atlas-signal-tower-v1' : source.name==='woven-canvas' ? 'atlas-canvas-weave-v1' : 'atlas-entity-v1';
       o.material = material; entity.meshes.push(o); entity.signals.push(signal);
       entities.set(key,entity); if (key !== 'about') buildings.push(o);
     });
@@ -419,9 +422,10 @@ export async function initAtlas() {
       }
       const motion=buildingMotion&&!world!.classList.contains('is-directory');
       world!.dataset.effectMotion=String(Boolean(selected&&motion));
-      if(effects.update(now/1000,motion))dirty=true;
-      if (selected && motion) {
-        entities.get(selected)?.signals.forEach(s => s.time.value = now/1000); dirty = true;
+      if(effects.update(now/1000,motion)) {
+        dirty=true;
+        // Real articulated parts cast changing shadows; the inactive scene stays cached.
+        if(renderer!.shadowMap.enabled)renderer!.shadowMap.needsUpdate=true;
       }
       if (!dirty) return;
       dirty = false; renderer!.render(scene,camera);
@@ -438,6 +442,7 @@ export async function initAtlas() {
     window.addEventListener('pagehide', e => {
       if (e.persisted) return;
       disposed = true; clearTimeout(closeTimer); cancelAnimationFrame(frame); observer.disconnect();
+      effects.dispose();
       renderer?.dispose();
       scene.traverse(o => {
         if (!(o instanceof THREE.Mesh || o instanceof THREE.Line)) return;

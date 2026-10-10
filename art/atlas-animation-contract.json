@@ -1,0 +1,20 @@
+{
+  "asset": "Integrated miniature atlas activities",
+  "style": "Preserve the existing finely crafted ceramic, glass, metal and planted miniature",
+  "finish": "Polished smooth; no low-poly or floating activity ornaments",
+  "duration_seconds": 6,
+  "fps": 30,
+  "assemblies": {
+    "skills": "Original gantry trolley, four flange wheels, suspended cable and hook; fixed beam and columns",
+    "character": "Glazed entry doors and a warm paw exhibit inside the pavilion; actual door tracks and lintel",
+    "timeline": "Eight hinged oculus shutters revealing the archive observatory glazing; fixed rim and tangent hinges",
+    "recent": "Pinned canvas canopy deformation and a suspended tubular wind chime; fixed timber supports",
+    "about": "Garden irrigation heads, attached water droplets and anchored seedling deformation; fixed beds and pipes",
+    "friends": "Original satellite dish and feed move together on a supported gimbal, with the original beacon",
+    "works": "Curved greenhouse roof glazing opens on ridge hinges; original ribs and fixed gallery body"
+  },
+  "hard_gates": ["One independently selectable exported clip per destination", "No duplicated gantry", "Only the selected destination animates", "Moving parts remain connected to authored supports", "Rest pose restored on deselection", "No runtime image assets without the established watermark treatment"],
+  "review": ["Default 58 degree view", "Top-down view", "Close-up start, working and return phases", "Two camera angles per mechanism", "Whole loop at normal speed", "Fresh GLB import and browser runtime"],
+  "deliverables": ["Reproducible Blender construction", "Editable private blend", "GLB hierarchy and animation clips", "Browser activity controller", "Private renders, video and validation metrics"],
+  "approval_gates": []
+}

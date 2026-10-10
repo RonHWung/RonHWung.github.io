@@ -4,14 +4,15 @@ Run: blender --background --factory-startup --python art/build_atlas.py
 Coordinate contract: authored XY ground / Z up -> GLB X,-Y ground / Y up.
 All foliage, roads, roofs, river banks and equipment are authored geometry.
 """
-import bpy, bmesh, math, random, json, sys
+import bpy, bmesh, math, random, json, sys, hashlib
+from contextlib import contextmanager
 from pathlib import Path
 from collections import defaultdict
 from mathutils import Vector, Matrix
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'public' / 'models'
-PRIVATE = ROOT.parent / 'workbench-private' / 'atlas-art'
+PRIVATE = ROOT.parent / 'workbench-private' / 'atlas-animation-20261011'
 OUT.mkdir(parents=True, exist_ok=True)
 PRIVATE.mkdir(parents=True, exist_ok=True)
 random.seed(522)
@@ -20,6 +21,16 @@ BUCKETS = defaultdict(lambda: [[], []])
 MATS = {}
 CACHE = {}
 ZONE = 'landscape'
+PARTS = {}
+
+@contextmanager
+def moving_part(name, pivot, clip, parent=None, rotation=(0,0,0)):
+    global ZONE
+    name=name.replace('-','n').replace('.','p')
+    old=ZONE; ZONE=name
+    PARTS[name]={'pivot':pivot,'clip':clip,'parent':parent,'rotation':rotation}
+    try: yield
+    finally: ZONE=old
 
 def material(name, hexcolor, rough=.65, metal=0, emission=0):
     c = tuple(int(hexcolor[i:i+2],16)/255 for i in (0,2,4))
@@ -235,8 +246,29 @@ def plantings():
 def pavilion():
     global ZONE; ZONE='pavilion'; z=.42
     terrace(0,0,9.8,8.2,z)
-    box((0,.6,z+.8),(5.8,3.8,1.3),'porcelain',.15)
-    windows(0,-1.32,4.9,z+.95,.9)
+    # Recessed entry: actual interior clearance behind two sliding glazed doors.
+    box((0,2.35,z+.8),(5.8,.3,1.3),'porcelain',.08)
+    for sign in [-1,1]:
+        box((sign*2.75,.6,z+.8),(.3,3.8,1.3),'porcelain',.08)
+        box((sign*1.99,-1.18,z+.8),(1.82,.25,1.3),'porcelain',.06)
+        windows(sign*1.98,-1.33,1.62,z+.95,.9)
+    box((0,.6,z+.22),(5.8,3.8,.12),'stone',.04)
+    box((0,-1.2,z+1.36),(5.8,.3,.18),'porcelain',.04)
+    for sign in [-1,1]:
+        with moving_part('pavilion_door_'+('left' if sign<0 else 'right'),(sign*.54,-1.4,z+.8),'character'):
+            box((sign*.54,-1.4,z+.8),(1.06,.065,1.04),'glass_dark',.018)
+            for dx in [-.52,.52]: rod((sign*.54+dx,-1.44,z+.29),(sign*.54+dx,-1.44,z+1.32),.025,'steel')
+            for dz in [.29,1.32]: box((sign*.54,-1.44,z+dz),(1.08,.035,.04),'porcelain',.01)
+            rod((sign*.10,-1.48,z+.64),(sign*.10,-1.48,z+.9),.022,'yellow')
+    box((0,-1.45,z+1.37),(3.5,.14,.09),'steel',.02)
+    box((0,-1.45,z+.255),(3.5,.1,.035),'dark',.01)
+    # A framed paw exhibit inside the real doorway; its plinth stays on the floor.
+    box((0,-1.05,z+.3),(.92,.5,.12),'wood',.04)
+    rod((0,-1.05,z+.35),(0,-1.05,z+.8),.045,'steel')
+    with moving_part('pavilion_exhibit',(0,-1.05,z+.86),'character'):
+        box((0,-1.05,z+.86),(.76,.09,.58),'dark',.05)
+        for px,dz,s in [(-.19,.12,.075),(0,.17,.075),(.19,.12,.075),(0,-.1,.14)]:
+            sphere((px,-1.11,z+.86+dz),(s,.025,s*.85),'light')
     # Clerestory sawtooth canopy: individual rising roof planes with glazed seams.
     for i in range(4):
         x=-3.2+i*1.6
@@ -268,9 +300,9 @@ def pavilion():
     for x in [-3.8,3.8]:
         railing((x,-2.9),(x,2.9),z+.24)
     # The character's paw emblem on an inset display, not a borrowed game logo.
-    box((0,-1.4,z+1.38),(1.25,.055,.68),'dark',.06)
+    box((0,-1.4,z+1.68),(1.25,.055,.48),'dark',.05)
     for x,dz,s in [(-.3,.15,.105),(0,.23,.11),(.3,.15,.105),(0,-.12,.2)]:
-        sphere((x,-1.46,z+1.38+dz),(s,.035,s*.9),'signal')
+        sphere((x,-1.46,z+1.68+dz*.65),(s,.035,s*.65),'signal')
     # Main utility island: louver panels, tanks, pipes, loading details.
     box((3.3,2.7,z+.7),(1.3,1.1,.9),'dark',.08)
     for i in range(9): box((3.3,2.12,z+.45+i*.065),(1.08,.07,.025),'steel',.006)
@@ -311,9 +343,20 @@ def workshop():
         box((x+ix,y-2.5,z+1.9),(.13,.16,3.1),'yellow',.025)
     box((x-.1,y-2.5,z+3.46),(6,.18,.28),'yellow',.03)
     for dz in [-.15,.15]: box((x-.1,y-2.5,z+3.46+dz),(6,.34,.045),'dark',.012)
-    box((x+.9,y-2.5,z+3.26),(.45,.36,.3),'steel',.035)
-    rod((x+.9,y-2.5,z+3.11),(x+.9,y-2.5,z+2.24),.013,'dark',6)
-    tube([(x+.9,y-2.5,z+2.24),(x+.9,y-2.5,z+2.05),(x+1.05,y-2.5,z+2.02),(x+1.1,y-2.5,z+2.13)],.035,'steel')
+    carriage=(x+.9,y-2.5,z+3.26)
+    with moving_part('workshop_carriage',carriage,'skills'):
+        box(carriage,(.45,.36,.3),'steel',.035)
+        # The existing trolley rides the original beam flange on four wheels.
+        for ix in [-.19,.19]:
+            for iy in [-.22,.22]:
+                wp=(carriage[0]+ix,carriage[1]+iy,z+3.59)
+                rod((wp[0],wp[1],carriage[2]),wp,.025,'steel')
+                with moving_part('workshop_wheel_'+str(ix)+'_'+str(iy),wp,'skills','workshop_carriage'):
+                    lathe(wp,[(.11,-.045),(.13,-.03),(.13,.03),(.11,.045)],'dark',24,(0,1,0))
+                    rod((wp[0]-.1,wp[1]-.05,wp[2]),(wp[0]+.1,wp[1]-.05,wp[2]),.018,'yellow')
+        with moving_part('workshop_sling',(x+.9,y-2.5,z+3.11),'skills','workshop_carriage'):
+            rod((x+.9,y-2.5,z+3.11),(x+.9,y-2.5,z+2.24),.019,'dark',12)
+            tube([(x+.9,y-2.5,z+2.24),(x+.9,y-2.5,z+2.05),(x+1.05,y-2.5,z+2.02),(x+1.1,y-2.5,z+2.13)],.035,'steel',12)
     for ix in [-3.2,3.2]: lamp(x+ix,y-2.7,z+.24)
 
 def gallery():
@@ -326,10 +369,25 @@ def gallery():
     vs=[]; n=32
     for i in range(n+1):
         a=math.pi*i/n; vs.extend([(x+2.3*math.cos(a),y-1.9,z+.95+1.7*math.sin(a)),(x+2.3*math.cos(a),y+1.9,z+.95+1.7*math.sin(a))])
-    emit(vs,[(i*2,i*2+1,i*2+3,i*2+2) for i in range(n)],'glass')
-    for j in range(9):
-        tube([(x+2.34*math.cos(math.pi*i/32),y-1.95+j*.49,z+.95+1.74*math.sin(math.pi*i/32)) for i in range(33)],.035,'porcelain')
-    for a in [.2,.7,1.2,1.7,2.2,2.7]: rod((x+2.34*math.cos(a),y-2,z+.95+1.74*math.sin(a)),(x+2.34*math.cos(a),y+2,z+.95+1.74*math.sin(a)),.025,'steel')
+    for side in range(2):
+        with moving_part('gallery_glazing_'+str(side),(x,y,z+2.65),'works'):
+            for i in range(side*16,(side+1)*16):
+                emit([vs[i*2],vs[i*2+1],vs[i*2+3],vs[i*2+2]],[(0,1,2,3)],'glass')
+            # Narrow perimeter frame remains rigidly attached to the glazing.
+            for iy in [-1.9,1.9]:
+                tube([(x+2.3*math.cos(math.pi*i/32),y+iy,z+.95+1.7*math.sin(math.pi*i/32))
+                    for i in range(side*16,(side+1)*16+1)],.036,'steel',12)
+            for j in range(1,8):
+                tube([(x+2.34*math.cos(math.pi*i/32),y-1.95+j*.49,z+.95+1.74*math.sin(math.pi*i/32))
+                    for i in range(side*16,(side+1)*16+1)],.035,'porcelain',12)
+            for a in [.2,.7,1.2,1.7,2.2,2.7]:
+                if (a<math.pi/2)==(side==0):
+                    rod((x+2.34*math.cos(a),y-1.9,z+.95+1.74*math.sin(a)),
+                        (x+2.34*math.cos(a),y+1.9,z+.95+1.74*math.sin(a)),.025,'steel')
+        for iy in [-1.6,0,1.6]:
+            lathe((x,y+iy,z+2.65),[(.07,-.09),(.07,.09)],'steel',20,(0,1,0))
+    for iy in [-1.95,1.95]:
+        tube([(x+2.34*math.cos(math.pi*i/32),y+iy,z+.95+1.74*math.sin(math.pi*i/32)) for i in range(33)],.035,'porcelain',12)
     windows(x,y-1.93,3.5,z+1.08,1.4)
     box((x,y-2.02,z+1.05),(.7,.055,1.45),'sun',.035)
     stairs(x,y-3.01,z,2,2)
@@ -354,6 +412,16 @@ def archive():
     lathe((x,y,z+.24),[(2,0),(2,.12),(1.88,.2),(1.88,1.55),(1.95,1.64)],'porcelain',64)
     lathe((x,y,z+1.6),[(1.91,0),(1.9,.22),(1.64,.45),(1.18,.63),(.6,.73)],'stone',64)
     lathe((x,y,z+2.28),[(.6,0),(.58,.04),(.5,.07)],'glass',48)
+    # The roof oculus opens on eight tangential hinges, revealing its glazing.
+    for i in range(8):
+        a=(i+.5)*math.tau/8; pivot=(x+.52*math.cos(a),y+.52*math.sin(a),z+2.39)
+        with moving_part('archive_iris_'+str(i),pivot,'timeline',rotation=(0,0,a)):
+            sector=[(x+.56*math.cos(a-.36),y+.56*math.sin(a-.36),z+2.39),
+                    (x+.56*math.cos(a+.36),y+.56*math.sin(a+.36),z+2.39),(x,y,z+2.39)]
+            emit(sector+[(px,py,pz+.035) for px,py,pz in sector],[(0,2,1),(3,4,5),(0,1,4,3),(1,2,5,4),(2,0,3,5)],'steel')
+            rod(sector[0],sector[2],.012,'porcelain',8)
+        tangent=Vector((-math.sin(a),math.cos(a),0))*.13
+        rod(tuple(Vector(pivot)-tangent),tuple(Vector(pivot)+tangent),.04,'yellow',16)
     for i in range(24):
         a=i*math.tau/24
         rod((x+1.92*math.cos(a),y+1.92*math.sin(a),z+.48),(x+1.92*math.cos(a),y+1.92*math.sin(a),z+1.95),.035,'steel')
@@ -379,16 +447,27 @@ def camp():
     global ZONE; ZONE='camp'; x=3; y=-13; z=.55
     terrace(x,y,5.6,4,z)
     # Canvas pavilion has a double curved roof supported by real timber frames.
-    for iy in [-1.4,1.4]:
-        for ix in [-1.7,1.7]: rod((x+ix,y+iy,z+.24),(x+ix,y+iy,z+1.5),.055,'wood')
+    for iy in [-1.7,1.7]:
+        for ix in [-1.95,1.95]: rod((x+ix,y+iy,z+.24),(x+ix,y+iy,z+1.5),.055,'wood')
     vs=[]
-    for j in range(21):
-        xx=-1.95+3.9*j/20; h=1.5+.9*(1-(abs(xx)/1.95)**.8)
-        vs.extend([(x+xx,y-1.7,z+h),(x+xx,y+1.7,z+h)])
-    emit(vs,[(j*2,j*2+1,j*2+3,j*2+2) for j in range(20)],'sun')
+    for j in range(33):
+        xx=-1.95+3.9*j/32; h=1.5+.9*(1-(abs(xx)/1.95)**.8)
+        for k in range(17): vs.append((x+xx,y-1.7+3.4*k/16,z+h))
+    with moving_part('camp_canopy',(x,y,z),'recent'):
+        emit(vs,[(j*17+k,j*17+k+1,(j+1)*17+k+1,(j+1)*17+k) for j in range(32) for k in range(16)],'sun')
+    # Wind chime cords originate at an actual bracket under the timber canopy.
+    anchor=(x+1.55,y-1.5,z+1.45)
+    rod((x+1.95,y-1.7,z+1.5),anchor,.022,'wood')
+    with moving_part('camp_chime',anchor,'recent'):
+        rod(anchor,(anchor[0],anchor[1],anchor[2]-.2),.01,'dark',8)
+        lathe((anchor[0],anchor[1],anchor[2]-.2),[(.18,0),(.18,.025)],'wood',32)
+        for i in range(5):
+            a=i*math.tau/5; cx=anchor[0]+.14*math.cos(a);cy=anchor[1]+.14*math.sin(a)
+            rod((cx,cy,anchor[2]-.2),(cx,cy,anchor[2]-.29),.006,'dark',6)
+            lathe((cx,cy,anchor[2]-.3),[(.028,0),(.028,-.25-i*.035)],'steel',16)
     rod((x,y-1.9,z+2.4),(x,y+1.9,z+2.4),.05,'wood')
     for iy in [-1.7,1.7]:
-        for ix in [-1.9,1.9]: rod((x+ix,y+iy,z+1.5),(x+ix*1.3,y+iy*1.2,z+.24),.01,'dark',5)
+        for ix in [-1.95,1.95]: rod((x+ix,y+iy,z+1.5),(x+ix*1.3,y+iy*1.2,z+.24),.01,'dark',8)
     box((x,y,z+.9),(1.8,.7,.08),'wood',.025)
     for ix in [-.7,.7]: rod((x+ix,y,z+.24),(x+ix,y,z+.86),.04,'steel')
     for iy in [-.7,.7]:
@@ -422,11 +501,22 @@ def communications():
             pc=(x+r2*math.sqrt(2)*math.cos(b),y+r2*math.sqrt(2)*math.sin(b),z+h2)
             rod(pa,pb,.025); rod(pa,pc,.025)
     rod((x,y,z+4.85),(x,y,z+5.7),.035,'dark')
-    sphere((x,y,z+5.72),(.09,.09,.1),'light')
+    with moving_part('communications_beacon',(x,y,z+5.72),'friends'):
+        sphere((x,y,z+5.72),(.09,.09,.1),'light')
     # Proper concave satellite shell (rim faces the sky), mast and feed.
-    lathe((x+.5,y,z+3.5),[(.05,0),(.25,.025),(.5,.12),(.72,.28),(.76,.32)],'porcelain',40,Vector((1,-.2,1)))
-    rod((x+.45,y,z+3.7),(x+1.15,y-.12,z+4.4),.035,'steel')
-    sphere((x+1.15,y-.12,z+4.4),(.08,.08,.08),'yellow')
+    # Outboard triangulated bracket: the dish clears the mast at every yaw.
+    pivot=(x+1.3,y,z+3.5)
+    rod((x+.34,y-.18,z+3.5),(pivot[0],y-.18,pivot[2]),.055,'steel')
+    rod((x+.34,y+.18,z+3.5),(pivot[0],y+.18,pivot[2]),.055,'steel')
+    rod((x+.4,y,z+2.95),pivot,.05,'steel')
+    rod((pivot[0],y-.2,pivot[2]),(pivot[0],y+.2,pivot[2]),.06,'steel')
+    lathe(pivot,[(.13,-.06),(.13,.06)],'dark',32,(0,0,1))
+    with moving_part('communications_dish',pivot,'friends'):
+        profile=[(.05+.71*i/16,.32*((.05+.71*i/16)/.76)**2-.32*(.05/.76)**2) for i in range(17)]
+        profile.extend([(.78,.33),(.78,.36),(.76,.36)])
+        lathe(pivot,profile,'porcelain',64,Vector((1,-.2,1)))
+        rod((x+1.25,y,z+3.7),(x+1.95,y-.12,z+4.4),.035,'steel')
+        sphere((x+1.95,y-.12,z+4.4),(.08,.08,.08),'yellow')
     for ix in [-1.5,1.5]: solar(x+ix,y+1.5,z+.6,.85,.85)
     # The western access spans water on a supported bridge rather than pavement.
     cy=-3; rx=river_x(cy); w=river_width(cy)
@@ -445,8 +535,27 @@ def cultivated_details():
             for sign in [-1,1]: box((bx,cy+sign*.22,z+.08),(2.6,.025,.14),'wood',.005)
             for i in range(10):
                 px=bx-1.05+i*.23
-                sphere((px,cy,z+.18),(.085,.12,.12),'leaf'+str((i+j)%4),i+j)
-                if (i+j)%3==0: sphere((px,cy-.045,z+.28),(.038,.038,.023),'flower',i)
+                if bx in [0,3.2,-3.2]:
+                    with moving_part('cultivated_seedlings',(0,0,0),'about'):
+                        sphere((px,cy,z+.18),(.085,.12,.12),'leaf'+str((i+j)%4),i+j)
+                        if (i+j)%3==0: sphere((px,cy-.045,z+.28),(.038,.038,.023),'flower',i)
+                else:
+                    sphere((px,cy,z+.18),(.085,.12,.12),'leaf'+str((i+j)%4),i+j)
+                    if (i+j)%3==0: sphere((px,cy-.045,z+.28),(.038,.038,.023),'flower',i)
+    # Low irrigation pipes are seated in walking aisles, with swivel nozzles.
+    for side in [-1,1]:
+        bx=side*4.45;by=14;ground=height(bx,by)
+        tube([(bx,11+i*5.5/22,height(bx,11+i*5.5/22)+.07) for i in range(23)],.045,'dark',12)
+        rod((bx,by,ground+.07),(bx,by,ground+.65),.055,'steel')
+        lathe((bx,by,ground+.57),[(.12,0),(.12,.08)],'yellow',32)
+        name='cultivated_sprinkler_'+('left' if side<0 else 'right');pivot=(bx,by,ground+.67)
+        with moving_part(name,pivot,'about'):
+            lathe(pivot,[(.085,0),(.085,.09)],'steel',24)
+            rod((bx,by,ground+.73),(bx-side*.24,by,ground+.77),.035,'dark')
+            # Two interleaved streams, sampled as elongated water droplets.
+            for k in range(18):
+                with moving_part('cultivated_drop_'+('left' if side<0 else 'right')+'_'+str(k),pivot,'about',name):
+                    sphere(pivot,(.08,.038,.045),'water_light',k)
     # Sandstone outcrops: asymmetric, layered natural profiles, never platonic
     # boulders or floating cubes. Embedded footing is calculated from terrain.
     for i in range(24):
@@ -483,14 +592,35 @@ def cultivated_details():
         box((bx,by,z+.12),(.18,.18,.22),'yellow',.02)
 
 def finish():
-    objects=[]
+    objects=[];groups={};part_meshes=defaultdict(list)
+    for name,info in PARTS.items():
+        group=bpy.data.objects.new(name,None);bpy.context.collection.objects.link(group)
+        group.location=info['pivot'];group.rotation_euler=info['rotation']
+        group['atlasDestination']=info['clip'];group['atlasAssembly']=name
+        bpy.context.view_layer.update();world=group.matrix_world.copy()
+        if info['parent']:
+            group.parent=groups[info['parent']];group.matrix_world=world
+        groups[name]=group
+    bpy.context.view_layer.update()
     for (zone,mat),(vs,fs) in BUCKETS.items():
-        mesh=bpy.data.meshes.new(zone+'_'+mat); mesh.from_pydata(vs,[],fs); mesh.materials.append(MATS[mat]); mesh.update()
+        group=groups.get(zone)
+        local=[tuple(group.matrix_world.inverted()@Vector(v)) for v in vs] if group else vs
+        mesh=bpy.data.meshes.new(zone+'_'+mat); mesh.from_pydata(local,[],fs); mesh.materials.append(MATS[mat]); mesh.update()
         obj=bpy.data.objects.new(zone+'_'+mat,mesh); bpy.context.collection.objects.link(obj)
+        if group:obj.parent=group;part_meshes[zone].append(obj)
         # Smooth curves and topography while retaining authored facade breaks.
-        for p in mesh.polygons: p.use_smooth=mat.startswith('leaf') or mat in ['water','water_light','bark','sand']
+        for p in mesh.polygons: p.use_smooth=mat.startswith('leaf') or mat in ['water','water_light','bark','sand'] or zone=='camp_canopy' or (zone=='communications_dish' and mat=='porcelain')
+        if zone=='camp_canopy':
+            fabric=obj.data.materials[0].copy();fabric.name='woven-canvas';fabric.node_tree.nodes.get('Principled BSDF').inputs['Roughness'].default_value=.94
+            obj.data.materials[0]=fabric
+            uv=mesh.uv_layers.new(name='CanvasUV')
+            for loop in mesh.loops:
+                co=mesh.vertices[loop.vertex_index].co;uv.data[loop.index].uv=((co.x+1.95)/3.9,(co.y+1.7)/3.4)
         objects.append(obj)
-    for obj in objects: obj.select_set(True)
+    sys.path.insert(0,str(Path(__file__).resolve().parent))
+    from atlas_animations import bind_animations
+    bind_animations(groups,PARTS,part_meshes,height,PRIVATE)
+    for obj in objects+list(groups.values()): obj.select_set(True)
     bpy.context.view_layer.objects.active=objects[0]
     # Camera/lights are evidence helpers; they are excluded from runtime export.
     bpy.ops.object.camera_add(location=(31,-44,38)); camera=bpy.context.object
@@ -505,11 +635,14 @@ def finish():
     scene.render.image_settings.file_format='PNG'; scene.render.film_transparent=True
     bpy.ops.wm.save_as_mainfile(filepath=str(PRIVATE/'ronghuang-atlas.blend'))
     bpy.ops.object.select_all(action='DESELECT')
-    for obj in objects: obj.select_set(True)
-    bpy.ops.export_scene.gltf(filepath=str(OUT/'ronghuang-atlas.glb'),export_format='GLB',use_selection=True,export_apply=True,export_cameras=False,export_lights=False,export_yup=True,export_draco_mesh_compression_enable=True,export_draco_mesh_compression_level=6)
+    for obj in objects+list(groups.values()): obj.select_set(True)
+    bpy.ops.export_scene.gltf(filepath=str(OUT/'ronghuang-atlas.glb'),export_format='GLB',use_selection=True,export_apply=True,export_cameras=False,export_lights=False,export_yup=True,export_extras=True,export_animation_mode='NLA_TRACKS',export_animations=True,export_morph_animation=True,export_draco_mesh_compression_enable=True,export_draco_mesh_compression_level=6)
+    version=hashlib.sha256((OUT/'ronghuang-atlas.glb').read_bytes()).hexdigest()[:16]
+    (ROOT/'src/data/atlas-model.json').write_text(json.dumps({'version':version,'clips':sorted(set(p['clip'] for p in PARTS.values()))},indent=2)+'\n',encoding='utf-8')
     stats={'objects':len(objects),'materials':len(MATS),'vertices':sum(len(o.data.vertices) for o in objects),'triangles':sum(sum(len(p.vertices)-2 for p in o.data.polygons) for o in objects),'zones':sorted(set(k[0] for k in BUCKETS)),'seed':522,'stages_completed':['contract_and_references','graybox_and_proportion','primary_secondary_forms','structural_refinement','materials_textures','surface_polish'],'blender':bpy.app.version_string}
     (PRIVATE/'build-metrics.json').write_text(json.dumps(stats,indent=2),encoding='utf-8')
-    scene.render.filepath=str(PRIVATE/'atlas-hero.png'); bpy.ops.render.render(write_still=True)
+    if '--skip-render' not in sys.argv:
+        scene.render.filepath=str(PRIVATE/'atlas-hero.png'); bpy.ops.render.render(write_still=True)
     print('ATLAS_BUILD_RESULT '+json.dumps(stats))
 
 terrain(); pavilion(); workshop(); gallery(); archive(); camp(); communications(); plantings(); cultivated_details(); finish()

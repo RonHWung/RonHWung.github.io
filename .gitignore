@@ -7,5 +7,6 @@ Thumbs.db
 *.log
 art/*.blend
 art/*.blend1
+art/__pycache__/
 test-results/
 playwright-report/

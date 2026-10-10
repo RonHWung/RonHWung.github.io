@@ -291,33 +291,24 @@ test('entity activity is exclusive, stops on close and has an independent motion
   await context.close();
 });
 
-test('each building has moving effect geometry and other districts stay still', () => {
-  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera();
-  const activity=createAtlasEffects(scene,camera);
-  const groups=scene.children as THREE.Group[];
-  const state=(group:THREE.Group)=>group.children.map(object=>{
-    const mesh=object as THREE.Mesh;
-    return {position:object.position.toArray(),rotation:object.quaternion.toArray(),scale:object.scale.toArray(),
-      opacity:(mesh.material as THREE.MeshBasicMaterial|undefined)?.opacity,draw:mesh.geometry?.drawRange.count,
-      children:object.children.map(child=>child.position.toArray())};
-  });
-  expect(groups).toHaveLength(7);expect(groups.every(group=>!group.visible)).toBeTruthy();
-  for(const key of ['friends','skills','works','character','timeline','recent','about']) {
-    activity.select(key);
-    const current=groups.find(group=>group.name==='activity-'+key)!;
-    const others=groups.filter(group=>group!==current),still=others.map(state);
-    const now=performance.now()/1000;
-    activity.update(now+.35,true);const first=state(current);
-    activity.update(now+1.1,true);
-    expect(state(current)).not.toEqual(first);
-    expect(groups.filter(group=>group.visible)).toEqual([current]);
-    expect(others.map(state)).toEqual(still);
-    if(key==='friends')expect(new THREE.Box3().setFromObject(current).min.x).toBeGreaterThan(12.5);
-    expect(activity.update(now+1.2,false)).toBeTruthy();
-    expect(groups.every(group=>!group.visible)).toBeTruthy();
-    expect(activity.update(now+1.3,false)).toBeFalsy();
+test('authored actions play exclusively and restore each assembly to its rest pose', () => {
+  const scene=new THREE.Scene();
+  const keys=['friends','skills','works','character','timeline','recent','about'];
+  const groups=keys.map(key=>{const group=new THREE.Group();group.name=key;scene.add(group);return group;});
+  const clips=keys.map(key=>new THREE.AnimationClip(key,2,[new THREE.VectorKeyframeTrack(key+'.position',
+    [0,1,2],[0,0,0,1,0,0,0,0,0])]));
+  const activity=createAtlasEffects(scene,clips);
+  for(const key of keys) {
+    activity.select(key);activity.update(10,true);
+    for(let frame=1;frame<=10;frame++)activity.update(10+frame*.05,true);
+    const current=groups.find(group=>group.name===key)!;
+    expect(current.position.x).toBeGreaterThan(.4);
+    expect(groups.filter(group=>group!==current).every(group=>group.position.length()===0)).toBeTruthy();
+    expect(activity.update(11,false)).toBeTruthy();
+    expect(groups.every(group=>group.position.length()===0)).toBeTruthy();
+    expect(activity.update(11.1,false)).toBeFalsy();
   }
-  activity.select('');expect(activity.name()).toBe('');
+  activity.select('');expect(activity.name()).toBe('');activity.dispose();
 });
 
 test('signal tower gaps keep receiving animation active without including the bridge', async ({page}) => {
