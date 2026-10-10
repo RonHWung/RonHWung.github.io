@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import * as THREE from 'three';
+import { createAtlasEffects } from '../src/scripts/atlas-effects';
 const pageErrors=new WeakMap<import('@playwright/test').Page,string[]>();
 test.beforeEach(({page})=>{
   const errors:string[]=[];pageErrors.set(page,errors);
@@ -22,14 +24,16 @@ test('map starts at the 58 degree overview and Home restores the same view', asy
   await expect(page.locator('.atlas-preview:visible')).toHaveCount(0);
   await expect(page.locator('[data-atlas]')).toHaveAttribute('data-angle','58.00');
   await expect(page.locator('[data-atlas-zoom]')).toHaveCount(0);
+  const homeScale=Number(await page.locator('[data-atlas]').getAttribute('data-scale'));
   await angle(page,0);
   const initial = await page.locator('[data-atlas]').evaluate(el => ({
     scale:Number((el as HTMLElement).dataset.scale), w:el.clientWidth, h:el.clientHeight
   }));
-  expect(initial.scale*41.53).toBeGreaterThan(initial.w*.9);
-  expect(initial.scale*41.53).toBeGreaterThan(initial.h*.88);
+  expect(initial.scale*41.53).toBeGreaterThan(initial.w*.72);
+  expect(initial.scale*41.53).toBeGreaterThan(initial.h*.70);
+  expect(initial.scale/homeScale).toBeCloseTo(.8/(1+.18*58/60),3);
   await angle(page,30); await angle(page,60);
-  expect(Number(await page.locator('[data-atlas]').getAttribute('data-scale'))/initial.scale).toBeLessThan(1.4);
+  expect(Number(await page.locator('[data-atlas]').getAttribute('data-scale'))/initial.scale).toBeLessThan(1.8);
   const box = (await page.locator('.atlas-canvas canvas').boundingBox())!;
   await page.mouse.move(box.x+box.width/2,box.y+box.height/2); await page.mouse.wheel(0,150);
   await expect.poll(async()=>Number(await page.locator('[data-atlas-angle]').inputValue())).toBeLessThan(60);
@@ -51,8 +55,13 @@ test('drag limits account for the visible footprint at every pitch', async ({ pa
     });
     expect(Math.abs(s.x)).toBeLessThanOrEqual(Math.max(0,20.765-s.halfX*.82)+.003);
     expect(Math.abs(s.z)).toBeLessThanOrEqual(Math.max(0,20.765-s.halfZ*.82)+.003);
-    expect(Math.abs(s.x)).toBeGreaterThan(Math.max(0,20.765-s.halfX)+.05);
-    expect((Math.abs(s.x)+s.halfX-20.765)/(s.halfX*2)).toBeLessThan(.091);
+    const panLimit=Math.max(0,20.765-s.halfX*.82);
+    if(panLimit>.05)expect(Math.abs(s.x)).toBeGreaterThan(Math.max(0,20.765-s.halfX)+.05);
+    else expect(Math.abs(s.x)).toBeLessThanOrEqual(.003);
+    // The smaller top-down map may fit inside the viewport; dragging may add
+    // at most 9% empty space beyond the breathing room already present at Home.
+    const centeredGap=Math.max(0,s.halfX-20.765)/(s.halfX*2);
+    expect((Math.abs(s.x)+s.halfX-20.765)/(s.halfX*2)-centeredGap).toBeLessThan(.091);
     await expect(page).toHaveURL('http://127.0.0.1:4321/');
   }
 });
@@ -272,4 +281,33 @@ test('entity activity is exclusive, stops on close and respects reduced motion',
   const reduced=await context.newPage();await ready(reduced);
   await reduced.locator('.atlas-node[data-preview-trigger="friends"]').hover();
   await expect(reduced.locator('[data-atlas]')).toHaveAttribute('data-effect-motion','false');await context.close();
+});
+
+test('each building has moving effect geometry and other districts stay still', () => {
+  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera();
+  const activity=createAtlasEffects(scene,camera);
+  const groups=scene.children as THREE.Group[];
+  const state=(group:THREE.Group)=>group.children.map(object=>{
+    const mesh=object as THREE.Mesh;
+    return {position:object.position.toArray(),rotation:object.quaternion.toArray(),scale:object.scale.toArray(),
+      opacity:(mesh.material as THREE.MeshBasicMaterial|undefined)?.opacity,draw:mesh.geometry?.drawRange.count,
+      children:object.children.map(child=>child.position.toArray())};
+  });
+  expect(groups).toHaveLength(7);expect(groups.every(group=>!group.visible)).toBeTruthy();
+  for(const key of ['friends','skills','works','character','timeline','recent','about']) {
+    activity.select(key);
+    const current=groups.find(group=>group.name==='activity-'+key)!;
+    const others=groups.filter(group=>group!==current),still=others.map(state);
+    const now=performance.now()/1000;
+    activity.update(now+.35,true);const first=state(current);
+    activity.update(now+1.1,true);
+    expect(state(current)).not.toEqual(first);
+    expect(groups.filter(group=>group.visible)).toEqual([current]);
+    expect(others.map(state)).toEqual(still);
+    if(key==='friends')expect(new THREE.Box3().setFromObject(current).min.x).toBeGreaterThan(12.5);
+    expect(activity.update(now+1.2,false)).toBeTruthy();
+    expect(groups.every(group=>!group.visible)).toBeTruthy();
+    expect(activity.update(now+1.3,false)).toBeFalsy();
+  }
+  activity.select('');expect(activity.name()).toBe('');
 });

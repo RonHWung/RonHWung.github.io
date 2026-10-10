@@ -232,7 +232,9 @@ export async function initAtlas() {
       // and let the label placer resolve the directory's extra spacing.
       const referenceScale=labels.fit(w,h,cover*(1+.18*HOME_ANGLE/60));
       const base = referenceScale/(1+.18*HOME_ANGLE/60);
-      pixelsPerUnit = base*(1+(maximumScale-1)*(angle/60));
+      // Top-down gets 20% more breathing room; Home and the 60° view retain their framing.
+      const topDownScale = .8 + .2 * Math.min(angle / HOME_ANGLE, 1);
+      pixelsPerUnit = base*(1+(maximumScale-1)*(angle/60))*topDownScale;
       halfX = w/(2*pixelsPerUnit); halfZ = h/(2*pixelsPerUnit*cosine);
       // Let a map edge move into the viewport by up to 9% of its width/height.
       // This gives breathing room while still preventing an empty map screen.
