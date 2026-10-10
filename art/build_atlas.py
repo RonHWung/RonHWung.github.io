@@ -12,7 +12,7 @@ from mathutils import Vector, Matrix
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'public' / 'models'
-PRIVATE = ROOT.parent / 'workbench-private' / 'atlas-animation-20261011'
+PRIVATE = ROOT.parent / 'workbench-private' / 'atlas-atmosphere-20261011'
 OUT.mkdir(parents=True, exist_ok=True)
 PRIVATE.mkdir(parents=True, exist_ok=True)
 random.seed(522)
@@ -365,29 +365,33 @@ def gallery():
     for ix in [-2.7,2.7]:
         for iy in [-2.4,2.4]: box((x+ix,y+iy,.24),(.3,.3,.65),'stone',.03)
     box((x,y,z+.6),(4.6,3.8,.7),'porcelain',.1)
-    # Botanical gallery with continuous rounded glazed vault.
-    vs=[]; n=32
-    for i in range(n+1):
-        a=math.pi*i/n; vs.extend([(x+2.3*math.cos(a),y-1.9,z+.95+1.7*math.sin(a)),(x+2.3*math.cos(a),y+1.9,z+.95+1.7*math.sin(a))])
-    for side in range(2):
-        with moving_part('gallery_glazing_'+str(side),(x,y,z+2.65),'works'):
-            for i in range(side*16,(side+1)*16):
-                emit([vs[i*2],vs[i*2+1],vs[i*2+3],vs[i*2+2]],[(0,1,2,3)],'glass')
-            # Narrow perimeter frame remains rigidly attached to the glazing.
-            for iy in [-1.9,1.9]:
-                tube([(x+2.3*math.cos(math.pi*i/32),y+iy,z+.95+1.7*math.sin(math.pi*i/32))
-                    for i in range(side*16,(side+1)*16+1)],.036,'steel',12)
-            for j in range(1,8):
-                tube([(x+2.34*math.cos(math.pi*i/32),y-1.95+j*.49,z+.95+1.74*math.sin(math.pi*i/32))
-                    for i in range(side*16,(side+1)*16+1)],.035,'porcelain',12)
-            for a in [.2,.7,1.2,1.7,2.2,2.7]:
-                if (a<math.pi/2)==(side==0):
-                    rod((x+2.34*math.cos(a),y-1.9,z+.95+1.74*math.sin(a)),
-                        (x+2.34*math.cos(a),y+1.9,z+.95+1.74*math.sin(a)),.025,'steel')
-        for iy in [-1.6,0,1.6]:
-            lathe((x,y+iy,z+2.65),[(.07,-.09),(.07,.09)],'steel',20,(0,1,0))
-    for iy in [-1.95,1.95]:
-        tube([(x+2.34*math.cos(math.pi*i/32),y+iy,z+.95+1.74*math.sin(math.pi*i/32)) for i in range(33)],.035,'porcelain',12)
+    # The vault is fixed. Only four small ridge skylights ventilate the studio.
+    def vault_point(i,j,lift=0):
+        a=math.pi*i/32
+        return (x+2.3*math.cos(a),y-1.9+j*3.8/16,z+.95+1.7*math.sin(a)+lift)
+    for i in range(32):
+        for j in range(16):
+            if 13<=i<19 and (2<=j<7 or 9<=j<14):continue
+            emit([vault_point(i,j),vault_point(i,j+1),vault_point(i+1,j+1),vault_point(i+1,j)],[(0,1,2,3)],'glass')
+    for side,(ia,ib) in enumerate([(13,16),(16,19)]):
+        for row,(ja,jb) in enumerate([(2,7),(9,14)]):
+            pivot=(x,y-1.9+(ja+jb)/2*3.8/16,z+2.65)
+            with moving_part('gallery_vent_'+str(side*2+row),pivot,'works'):
+                for i in range(ia,ib):
+                    emit([vault_point(i,ja,.02),vault_point(i,jb,.02),vault_point(i+1,jb,.02),vault_point(i+1,ja,.02)],[(0,1,2,3)],'glass')
+                for j in [ja,jb]:tube([vault_point(i,j,.055) for i in range(ia,ib+1)],.035,'steel',12)
+                for i in [ia,ib]:rod(vault_point(i,ja,.055),vault_point(i,jb,.055),.035,'porcelain',12)
+                for j in range(9):
+                    rib_y=y-1.95+j*.49
+                    if y-1.9+ja*3.8/16<rib_y<y-1.9+jb*3.8/16:
+                        tube([(x+2.34*math.cos(math.pi*i/32),rib_y,z+.95+1.74*math.sin(math.pi*i/32)) for i in range(ia,ib+1)],.028,'porcelain',12)
+            lathe(pivot,[(.065,-.18),(.065,.18)],'steel',24,(0,1,0))
+    for j in range(9):
+        rib_y=y-1.95+j*.49
+        cut=any(y-1.9+ja*3.8/16<rib_y<y-1.9+jb*3.8/16 for ja,jb in [(2,7),(9,14)])
+        for ia,ib in ([(0,13),(19,32)] if cut else [(0,32)]):
+            tube([(x+2.34*math.cos(math.pi*i/32),rib_y,z+.95+1.74*math.sin(math.pi*i/32)) for i in range(ia,ib+1)],.035,'porcelain',12)
+    for a in [.2,.7,1.2,1.7,2.2,2.7]:rod((x+2.34*math.cos(a),y-2,z+.95+1.74*math.sin(a)),(x+2.34*math.cos(a),y+2,z+.95+1.74*math.sin(a)),.025,'steel')
     windows(x,y-1.93,3.5,z+1.08,1.4)
     box((x,y-2.02,z+1.05),(.7,.055,1.45),'sun',.035)
     stairs(x,y-3.01,z,2,2)

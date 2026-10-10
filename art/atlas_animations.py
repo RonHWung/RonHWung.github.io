@@ -28,8 +28,8 @@ def bind_animations(groups,parts,meshes,height,output):
             if name=='workshop_carriage':obj.location.x+=carriage(t)
             elif name.startswith('workshop_wheel_'):obj.rotation_euler.y-=carriage(t)/.13
             elif name=='workshop_sling':obj.rotation_euler.y+=.095*wave*(.3+.7*lift)
-            elif name.startswith('gallery_glazing_'):
-                side=int(name.rsplit('_',1)[1]);obj.rotation_euler.y+=(1 if side else -1)*math.radians(23)*lift
+            elif name.startswith('gallery_vent_'):
+                side=int(name.rsplit('_',1)[1])//2;obj.rotation_euler.y+=(1 if side else -1)*math.radians(16)*lift
             elif name.startswith('archive_iris_'):
                 obj.rotation_euler.y+=math.radians(65)*lift
             elif name=='communications_dish':

@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import * as THREE from 'three';
 import { createAtlasEffects } from '../src/scripts/atlas-effects';
+import { createAtlasAtmosphere } from '../src/scripts/atlas-atmosphere';
 const pageErrors=new WeakMap<import('@playwright/test').Page,string[]>();
 test.beforeEach(({page})=>{
   const errors:string[]=[];pageErrors.set(page,errors);
@@ -273,9 +274,11 @@ test('entity activity is exclusive, stops on close and has an independent motion
     await page.locator('.atlas-node[data-preview-trigger="'+key+'"]').hover();
     await expect(page.locator('[data-atlas]')).toHaveAttribute('data-active-entity',key);
     await expect(page.locator('[data-atlas]')).toHaveAttribute('data-effect-motion','true');
+    await expect(page.locator('[data-atlas]')).toHaveAttribute('data-atmosphere-count','1');
     expect(await page.locator('[data-atlas]').getAttribute('data-effect')).not.toBe('');
     await page.keyboard.press('Escape');
     await expect(page.locator('[data-atlas]')).toHaveAttribute('data-effect-motion','false');
+    await expect(page.locator('[data-atlas]')).toHaveAttribute('data-atmosphere-count','0');
   }
   const context=await browser.newContext({reducedMotion:'reduce',viewport:{width:1440,height:1000}});
   const reduced=await context.newPage();await ready(reduced);
@@ -309,6 +312,23 @@ test('authored actions play exclusively and restore each assembly to its rest po
     expect(activity.update(11.1,false)).toBeFalsy();
   }
   activity.select('');expect(activity.name()).toBe('');activity.dispose();
+});
+
+test('scene atmosphere follows one destination, stops completely and disposes its resources',()=>{
+  const scene=new THREE.Scene(),model=new THREE.Group(),camera=new THREE.PerspectiveCamera();scene.add(model);
+  camera.position.set(0,35,45);camera.lookAt(0,0,0);
+  const cues=createAtlasAtmosphere(model,camera);
+  const root=scene.getObjectByName('atlas-atmosphere')!;
+  for(const key of ['friends','recent','about','character','timeline','works','skills']) {
+    cues.select(key);cues.update(.7,true);expect(cues.activeCount()).toBe(1);
+    const current=root.children.find(o=>o.name==='atmosphere-'+key)!;
+    const others=root.children.filter(o=>o!==current);
+    const state=(o:THREE.Object3D)=>o.children.map(child=>child.position.toArray());
+    const still=others.map(state);cues.update(1.4,true);expect(others.map(state)).toEqual(still);
+    root.traverse(o=>expect([...o.position.toArray(),...o.quaternion.toArray(),...o.scale.toArray()].every(Number.isFinite)).toBeTruthy());
+    cues.update(1.5,false);expect(cues.activeCount()).toBe(0);
+  }
+  cues.dispose();expect(scene.getObjectByName('atlas-atmosphere')).toBeUndefined();
 });
 
 test('signal tower gaps keep receiving animation active without including the bridge', async ({page}) => {

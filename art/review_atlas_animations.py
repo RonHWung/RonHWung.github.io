@@ -3,7 +3,7 @@ import bpy,math,json,sys
 from pathlib import Path
 from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[1]
-OUT=ROOT.parent/'workbench-private/atlas-animation-20261011/critical-frames';OUT.mkdir(parents=True,exist_ok=True)
+OUT=ROOT.parent/'workbench-private/atlas-atmosphere-20261011/critical-frames';OUT.mkdir(parents=True,exist_ok=True)
 bpy.ops.object.select_all(action='SELECT');bpy.ops.object.delete(use_global=False)
 bpy.context.scene.render.fps=30
 bpy.ops.import_scene.gltf(filepath=str(ROOT/'public/models/ronghuang-atlas.glb'))

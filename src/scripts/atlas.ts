@@ -180,7 +180,8 @@ export async function initAtlas() {
     renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true;
 
     const labels = createAtlasLabels(triggers.filter(t => t.classList.contains('atlas-node')),world.querySelector<SVGSVGElement>('[data-atlas-connectors]')!);
-    const effects = createAtlasEffects(gltf.scene,gltf.animations);
+    const effects = createAtlasEffects(gltf.scene,gltf.animations,camera);
+    const fxTime={value:0},fxEnabled={value:0};
     const destinations: Record<string,string> = {pavilion:'character',workshop:'skills',gallery:'works',archive:'timeline',camp:'recent',communications:'friends'};
     type Signal = { strength: {value:number}; time: {value:number} };
     const entities = new Map<string,{meshes:THREE.Mesh[]; signals:Signal[]}>();
@@ -197,6 +198,7 @@ export async function initAtlas() {
       const material = source.clone();
       material.onBeforeCompile = shader => {
         shader.uniforms.atlasStrength = signal.strength; shader.uniforms.atlasTime = signal.time;
+        shader.uniforms.atlasFxTime=fxTime;shader.uniforms.atlasFxEnabled=fxEnabled;
         shader.vertexShader = shader.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 atlasPosition;')
           .replace('#include <begin_vertex>','#include <begin_vertex>\natlasPosition = (modelMatrix * vec4(transformed, 1.0)).xyz;');
         const mask = key === 'about'
@@ -209,9 +211,19 @@ export async function initAtlas() {
         if(source.name==='woven-canvas')shader.fragmentShader=shader.fragmentShader.replace(
           '#include <dithering_fragment>',
           'float weave=sin(atlasPosition.x*145.0)*sin(atlasPosition.z*145.0);\ngl_FragColor.rgb *= 0.975 + 0.025*weave;\n#include <dithering_fragment>');
+        if(key==='character'||key==='works'||key==='skills') {
+          shader.fragmentShader=shader.fragmentShader.replace('#include <common>',
+            '#include <common>\nuniform float atlasFxTime;\nuniform float atlasFxEnabled;');
+          const lightMask=key==='character'
+            ? 'step(2.99,atlasPosition.y)*(1.0-step(3.12,atlasPosition.y))*step(-2.4,atlasPosition.z)*(1.0-step(-1.6,atlasPosition.z))*(1.0-step(3.0,abs(atlasPosition.x)))'
+            : key==='works'?'step(2.7,atlasPosition.y)*(1.0-smoothstep(2.0,2.5,abs(atlasPosition.x-13.0)))'
+            : 'step(3.85,atlasPosition.y)*(1.0-step(4.18,atlasPosition.y))*step(-3.95,atlasPosition.z)*(1.0-step(-3.4,atlasPosition.z))';
+          shader.fragmentShader=shader.fragmentShader.replace('#include <dithering_fragment>',
+            'float surfaceLight='+lightMask+';\nfloat reflection=pow(max(0.0,cos(atlasPosition.x*1.6-atlasFxTime*1.5)),8.0);\ngl_FragColor.rgb += atlasStrength*atlasFxEnabled*surfaceLight*vec3(0.32,0.21,0.06)*(0.3+reflection);\n#include <dithering_fragment>');
+        }
       };
       material.customProgramCacheKey = () => key === 'about' ? 'atlas-field-v1'
-        : key === 'friends' ? 'atlas-signal-tower-v1' : source.name==='woven-canvas' ? 'atlas-canvas-weave-v1' : 'atlas-entity-v1';
+        : key === 'friends' ? 'atlas-signal-tower-v1' : source.name==='woven-canvas' ? 'atlas-canvas-weave-v1' : 'atlas-lit-'+key;
       o.material = material; entity.meshes.push(o); entity.signals.push(signal);
       entities.set(key,entity); if (key !== 'about') buildings.push(o);
     });
@@ -427,6 +439,8 @@ export async function initAtlas() {
         // Real articulated parts cast changing shadows; the inactive scene stays cached.
         if(renderer!.shadowMap.enabled)renderer!.shadowMap.needsUpdate=true;
       }
+      fxTime.value=effects.time();fxEnabled.value=motion?1:0;
+      world!.dataset.atmosphereCount=String(effects.atmosphereCount());
       if (!dirty) return;
       dirty = false; renderer!.render(scene,camera);
     }
