@@ -34,6 +34,7 @@ const { friend, index } = Astro.props;
     {friend.avatar && (
       <img
         src={friend.avatar}
+        style={friend.avatarPosition ? { objectPosition: friend.avatarPosition } : undefined}
         alt=""
         width="112"
         height="112"

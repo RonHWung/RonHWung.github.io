@@ -4,6 +4,7 @@ export interface FriendLink {
   siteName: string;
   href: string;
   avatar?: string;
+  avatarPosition?: string;
   fallbackAvatar?: string;
   signature?: string;
 }
@@ -83,9 +84,10 @@ export const friends: FriendLink[] = [
   {
     id: 'shaji',
     name: '沙棘',
-    siteName: '沙棘喵 // Bilibili',
-    href: 'https://space.bilibili.com/107776766',
-    avatar: 'https://i2.hdslb.com/bfs/face/978132e93c9c4c3ca1e12d17a8849407cc6755f4.jpg',
+    siteName: 'CyaNeko // AstraWeb',
+    href: 'https://cyanneko.github.io/AstraWeb/',
+    avatar: 'https://cyanneko.github.io/AstraWeb/assets/72added3507e17cad0488b0a2b1ed7ac1c4d235eca22b5bc774d017a025a45d2.png',
+    avatarPosition: '50% 20%',
     signature: '祝大家都变成闪闪发光的自己！',
   },
   {
