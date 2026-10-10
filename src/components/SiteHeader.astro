@@ -1,0 +1,30 @@
+---
+import { navigation } from '../data/site';
+
+const currentPath = Astro.url.pathname;
+const sectionPath = currentPath.startsWith('/moments/') ? '/journey/' : currentPath === '/welcome/' ? '/' : currentPath;
+const isActive = (href: string) => href === '/' ? sectionPath === '/' : sectionPath.startsWith(href);
+---
+
+<header class="site-header">
+  <span class="header-corner header-corner--left" aria-hidden="true"></span>
+  <a class="brand" href="/" aria-label="茸磺首页">
+    <span class="brand-mark" aria-hidden="true">
+      <i></i><i></i><i></i>
+    </span>
+    <span>
+      <strong>茸磺</strong>
+      <small>RONHWUNG // RH-0522</small>
+    </span>
+  </a>
+
+  <nav aria-label="主要导航">
+    {navigation.map((item, index) => (
+      <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+        <span>{String(index + 1).padStart(2, '0')}</span>{item.label}
+      </a>
+    ))}
+  </nav>
+  <span class="header-status" aria-hidden="true"><i></i> ARCHIVE ONLINE</span>
+  <span class="header-corner header-corner--right" aria-hidden="true"></span>
+</header>

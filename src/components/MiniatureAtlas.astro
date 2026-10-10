@@ -1,0 +1,71 @@
+---
+import { navigation } from '../data/site';
+import '../styles/atlas.css';
+const nodes = [
+  { key: 'about', name: '茸磺的小天地', href: '/welcome/', code: '00', x: 0, y: 1.2, z: -12.8 },
+  { key: 'character', name: '茸磺档案', href: '/character/', code: '01', x: 0, y: 3.4, z: 0 },
+  { key: 'skills', name: '做毛工作台', href: '/making/', code: '02', x: -12, y: 4.5, z: -6.2 },
+  { key: 'works', name: '画室', href: '/art/', code: '03', x: 13, y: 3.8, z: -10.2 },
+  { key: 'timeline', name: '时间线', href: '/timeline/', code: '04', x: -11, y: 3.8, z: 10.2 },
+  { key: 'recent', name: '沿途记录', href: '/journey/', code: '05', x: 3, y: 3.6, z: 13 },
+  { key: 'friends', name: '友链', href: '/friends/', code: '06', x: 15, y: 6.8, z: 3 },
+];
+---
+<section class="atlas-world" aria-label="茸磺的可交互微缩地图" data-atlas>
+  <img class="atlas-poster" src="/models/atlas-poster.webp" alt="由展馆、工坊、玻璃画廊、档案馆、营地与通讯站组成的茸磺微缩景观" fetchpriority="high" />
+  <div class="atlas-canvas" data-atlas-canvas></div>
+  <header class="atlas-title">
+    <p class="eyebrow">RONHWUNG // PERSONAL ATLAS</p>
+    <h1>把想象，带进现实。</h1>
+    <p>DRAW · BUILD · EXPLORE</p>
+  </header>
+  <div class="atlas-compass" aria-hidden="true">N ↑</div>
+  <svg class="atlas-connectors" data-atlas-connectors aria-hidden="true"></svg>
+  <div class="atlas-labels" data-atlas-labels>
+    {nodes.map(node => <a class="atlas-node" href={node.href} data-preview-trigger={node.key} data-x={node.x} data-y={node.y} data-z={node.z} aria-controls={'preview-' + node.key} aria-expanded="false"><span>{node.code}</span>{node.name}</a>)}
+  </div>
+  <div class="atlas-controls" aria-label="地图控制">
+  <div class="atlas-view-control">
+    <label for="atlas-angle" class="atlas-eye" title="视角与尺度联动">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span class="atlas-sr-only">地图视角</span>
+    </label>
+    <span class="atlas-angle-end" aria-hidden="true">60°</span>
+    <input id="atlas-angle" data-atlas-angle type="range" min="0" max="60" step="0.1" value="58" aria-label="地图俯仰角，下端正俯视，上端偏转60度" aria-valuetext="从正俯视偏转58度" />
+    <span class="atlas-angle-end" aria-hidden="true">0°</span>
+    <output for="atlas-angle" data-atlas-angle-readout>58°</output>
+  </div>
+  <div class="atlas-toolbox">
+    <button type="button" data-atlas-reset aria-label="恢复默认地图视角">⌂</button>
+    <button type="button" data-atlas-simple aria-pressed="false" aria-label="切换地图目录">☷</button>
+  </div>
+  </div>
+  <p class="atlas-instruction">拖动探索 · 滚轮调整视角 · 悬停预览 · 点击前往</p>
+  <nav class="atlas-hud" aria-label="地图内容预览">
+    <a href="/welcome/" data-preview-trigger="about" aria-controls="preview-about" aria-expanded="false"><span>00</span>HELLO RONHWUNG</a>
+    <a href="/making/" data-preview-trigger="skills" aria-controls="preview-skills" aria-expanded="false"><span>01</span>DRAW IT · MAKE IT</a>
+    <a href="/journey/" data-preview-trigger="recent" aria-controls="preview-recent" aria-expanded="false"><span>02</span>ALONG THE WAY</a>
+    <a href="/character/" data-preview-trigger="character" aria-controls="preview-character" aria-expanded="false"><span>03</span>MEET RONHWUNG</a>
+    <a href="/art/" data-preview-trigger="works" aria-controls="preview-works" aria-expanded="false"><span>04</span>SELECTED WORKS</a>
+    <a href="/timeline/" data-preview-trigger="timeline" aria-controls="preview-timeline" aria-expanded="false"><span>05</span>MONTH BY MONTH</a>
+    <a href="/friends/" data-preview-trigger="friends" aria-controls="preview-friends" aria-expanded="false"><span>06</span>REMOTE SIGNAL</a>
+  </nav>
+  <p class="atlas-status" data-atlas-status aria-live="polite">正在展开地图…</p>
+  {['about','skills','recent','character','works','timeline','friends'].map(key => (
+    <aside class="atlas-preview" id={'preview-' + key} data-preview={key} aria-label="地图内容预览" hidden>
+      <button class="preview-close" type="button" aria-label="关闭预览">×</button>
+      <slot name={key} />
+      {key === 'timeline' && <><p class="eyebrow">MONTH BY MONTH</p><h2>时间线</h2><p>从第一个做毛的九月开始，沿月份向右滑动。同一个月内的故事按可编辑的顺序排列，今后也可以继续向轴的两端生长。</p><a class="button-link" href="/timeline/">打开时间线 <span>↗</span></a></>}
+      {key === 'friends' && <><p class="eyebrow">REMOTE SIGNAL</p><h2>友链</h2><p>从创作、兽装与生活里认识的同行者。点击卡片，可以去往他们各自留下作品和故事的地方。</p><a class="button-link" href="/friends/">前往友链 <span>↗</span></a></>}
+    </aside>
+  ))}
+  <div class="atlas-fallback" data-atlas-fallback>
+    <p>选择一个目的地</p>
+    <a href="/welcome/">欢迎页面</a>
+    {navigation.filter(n => n.href !== '/').map(n => <a href={n.href}>{n.label}</a>)}
+  </div>
+</section>
+<script>
+  import { initAtlas } from '../scripts/atlas';
+  initAtlas();
+</script>

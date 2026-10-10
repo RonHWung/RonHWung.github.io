@@ -1,0 +1,28 @@
+{
+  "name": "ronhwung-homepage",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.28.2",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "validate": "pnpm run build && node scripts/validate-build.mjs",
+    "test:ui": "playwright test",
+    "review:visual": "node scripts/review-visual.mjs"
+  },
+  "dependencies": {
+    "astro": "7.2.4",
+    "three": "0.183.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@playwright/test": "^1.64.0",
+    "@types/node": "^22.20.5",
+    "@types/three": "0.183.0",
+    "typescript": "6.0.3"
+  }
+}

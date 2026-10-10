@@ -1,0 +1,11 @@
+node_modules/
+.pnpm-store/
+dist/
+.astro/
+.DS_Store
+Thumbs.db
+*.log
+art/*.blend
+art/*.blend1
+test-results/
+playwright-report/

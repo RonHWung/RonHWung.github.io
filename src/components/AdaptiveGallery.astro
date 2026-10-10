@@ -1,0 +1,157 @@
+---
+import ResponsiveImage from './ResponsiveImage.astro';
+import { getPublicWebpDimensions } from '../lib/webpDimensions.mjs';
+
+interface GalleryImage {
+  src: string;
+  alt: string;
+  position?: string;
+}
+
+interface Props {
+  images: GalleryImage[];
+  primary?: boolean;
+  label?: string;
+}
+
+const {
+  images,
+  primary = false,
+  label = primary ? '封面图片' : '更多照片',
+} = Astro.props;
+
+const preparedImages = await Promise.all(images.map(async (image) => ({
+  ...image,
+  ...await getPublicWebpDimensions(image.src),
+})));
+---
+
+<section
+  class:list={['adaptive-gallery', primary ? 'adaptive-gallery--primary' : 'adaptive-gallery--collection']}
+  data-count={images.length}
+  aria-label={label}
+>
+  {preparedImages.map((image, index) => (
+    <figure data-orientation={image.orientation} style={`--media-ratio:${image.width}/${image.height}`}>
+      <div class="adaptive-gallery__frame">
+        <ResponsiveImage
+          class="adaptive-gallery__image"
+          src={image.src}
+          alt={image.alt}
+          position={image.position}
+          sizes={primary ? '(max-width: 760px) 96vw, 1180px' : '(max-width: 760px) 96vw, 48vw'}
+          eager={primary && index === 0}
+          width={image.width}
+          height={image.height}
+        />
+      </div>
+      <figcaption>
+        <span>{primary ? 'COVER' : `FRAME ${String(index + 1).padStart(2, '0')}`}</span>
+        <p>{image.alt}</p>
+      </figcaption>
+    </figure>
+  ))}
+</section>
+
+<style>
+  .adaptive-gallery {
+    position: relative;
+  }
+
+  .adaptive-gallery figure {
+    margin: 0;
+  }
+
+  .adaptive-gallery__frame {
+    display: grid;
+    place-items: center;
+    padding: clamp(6px, 1vw, 12px);
+    border: 1px solid rgba(17, 27, 27, .25);
+    background:
+      linear-gradient(rgba(17, 27, 27, .035) 1px, transparent 1px) 0 0 / 24px 24px,
+      rgba(248, 250, 246, .72);
+    box-shadow: 12px 12px 0 rgba(0, 173, 191, .09);
+    clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px));
+    overflow: hidden;
+  }
+
+  :global(.adaptive-gallery__image) {
+    display: grid;
+    width: 100%;
+    height: auto;
+    place-items: center;
+  }
+
+  :global(.adaptive-gallery__image img) {
+    width: 100%;
+    height: auto !important;
+    object-fit: contain !important;
+  }
+
+  .adaptive-gallery figcaption {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 14px;
+    align-items: start;
+    padding: 13px 4px 0;
+    color: var(--ink-soft);
+  }
+
+  .adaptive-gallery figcaption span {
+    padding-top: 2px;
+    color: var(--tech);
+    font-family: var(--font-display);
+    font-size: .58rem;
+    font-weight: 900;
+    letter-spacing: .14em;
+  }
+
+  .adaptive-gallery figcaption p {
+    margin: 0;
+    font-size: .78rem;
+    line-height: 1.65;
+  }
+
+  .adaptive-gallery--primary {
+    margin: 25px 0 70px;
+  }
+
+  .adaptive-gallery--primary figure[data-orientation="portrait"] {
+    max-width: min(100%, 720px);
+    margin-inline: auto;
+  }
+
+  .adaptive-gallery--primary figure[data-orientation="square"] {
+    max-width: min(100%, 920px);
+    margin-inline: auto;
+  }
+
+  .adaptive-gallery--collection {
+    columns: 2 360px;
+    column-gap: 26px;
+    padding: 70px 0 105px;
+    border-top: 1px solid var(--line);
+  }
+
+  .adaptive-gallery--collection figure {
+    break-inside: avoid;
+    margin-bottom: 30px;
+  }
+
+  .adaptive-gallery--collection[data-count="1"] {
+    max-width: 920px;
+    margin-inline: auto;
+    columns: 1;
+  }
+
+  @media (max-width: 760px) {
+    .adaptive-gallery--primary {
+      margin-bottom: 52px;
+    }
+
+    .adaptive-gallery--collection {
+      columns: 1;
+      padding: 52px 0 76px;
+    }
+  }
+</style>

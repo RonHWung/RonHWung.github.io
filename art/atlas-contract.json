@@ -1,0 +1,14 @@
+{
+  "asset": "RonHWung miniature exploration atlas",
+  "purpose": "The full-screen interactive homepage, inspected both as a complete landscape and at close zoom",
+  "references": ["../../tmp/1.png", "../../tmp/2.png"],
+  "required_parts": ["continuous tiled terrain", "terraced woodland", "meandering wetland river", "central character pavilion", "artist greenhouse and gallery", "fursuit workshop with production equipment", "archive observatory", "communications station", "journey camp", "bridges, paths, planting, lighting and facade details"],
+  "relations": ["terrain heights continue across tile seams", "paths connect the six destinations", "bridge decks meet bank paths", "buildings and vegetation seat on terrain", "equipment has supports and connected structure"],
+  "style": ["finely crafted architectural miniature", "light industrial", "pale ceramic, glass, brushed metal, yellow accents and mint vegetation"],
+  "finish": {"profile": "polished_smooth", "low_poly_explicitly_requested": false, "surface_targets": ["continuous smooth landforms", "intentional architectural silhouettes", "readable secondary and tertiary detail", "natural irregular planting", "no blockout residue at maximum interactive zoom"]},
+  "stages": ["contract_and_references", "graybox_and_proportion", "primary_secondary_forms", "structural_refinement", "materials_textures", "surface_polish", "export_validation"],
+  "approval_gates": [],
+  "review_questions": ["Does the landscape feel like one designed place?", "Does every zone reward closer inspection?", "Are destinations recognizable without floating labels?", "Do roads, supports and roofs actually connect?"],
+  "deliverables": ["reproducible Python source", "editable Blender scene", "GLB runtime asset", "fresh-import metrics", "hero and multiview evidence"],
+  "performance": {"strategy": "merge meshes by material and region, simplify only details invisible at required view distance", "target": "smooth desktop and usable mobile pan/zoom; measure in the actual browser"}
+}
