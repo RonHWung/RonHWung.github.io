@@ -51,6 +51,9 @@
 .atlas-view-control output { font: 700 12px var(--font-display); white-space: nowrap; color: var(--ink); }
 .atlas-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .atlas-toolbox { display: flex; flex-direction: column; gap: 9px; }
+.atlas-toolbox [data-atlas-motion] svg { width: 25px; height: 25px; display: block; margin: auto; }
+.atlas-toolbox [data-atlas-motion][aria-pressed=true] { border-color: var(--tech); background: #e4f6ec; color: var(--tech); }
+.atlas-toolbox [data-atlas-motion][aria-pressed=false] { color: var(--ink-soft); }
 .atlas-toolbox button { width: 44px; height: 44px; padding: 0; font-size: 24px; line-height: 1; border: 1px solid #17373555; background: #f8faf6e8; box-shadow: 3px 3px 0 #17373512; }
 .atlas-toolbox button:hover, .atlas-toolbox button[aria-pressed=true] { background: var(--signal); }
 .atlas-hud { position: absolute; left: 24px; right: 92px; bottom: 24px; z-index: 4; display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 9px; }

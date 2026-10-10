@@ -16,6 +16,17 @@ export async function initAtlas() {
   const slider = world.querySelector<HTMLInputElement>('[data-atlas-angle]')!;
   const readout = world.querySelector<HTMLOutputElement>('[data-atlas-angle-readout]')!;
   const simpleButton = world.querySelector<HTMLButtonElement>('[data-atlas-simple]')!;
+  const motionButton = world.querySelector<HTMLButtonElement>('[data-atlas-motion]')!;
+  // Building activity is an explicit, local map preference. OS reduced motion
+  // still governs camera transitions and page UI, without silently hiding it.
+  let buildingMotion = true;
+  try { buildingMotion = localStorage.getItem('atlas-building-motion') !== 'off'; } catch {}
+  function syncMotionControl() {
+    motionButton.setAttribute('aria-pressed',String(buildingMotion));
+    motionButton.setAttribute('aria-label',buildingMotion?'关闭建筑动效':'开启建筑动效');
+    motionButton.title='建筑动效：'+(buildingMotion?'开启':'关闭');
+  }
+  syncMotionControl();
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const hover = matchMedia('(hover: hover) and (pointer: fine)');
   let keyboardMode = false, active = '', pinned = false, insidePreview = false, restoringFocus = false;
@@ -23,6 +34,10 @@ export async function initAtlas() {
   let closeTimer: ReturnType<typeof setTimeout> | undefined;
   let highlight = (_key: string) => {};
   let dirty = true;
+  motionButton.addEventListener('click',()=>{
+    buildingMotion=!buildingMotion;syncMotionControl();dirty=true;
+    try { localStorage.setItem('atlas-building-motion',buildingMotion?'on':'off'); } catch {}
+  });
   let resetToHome = () => {}, relayout = () => {};
   reduced.addEventListener('change', () => dirty = true);
   window.addEventListener('keydown', () => keyboardMode = true, { capture: true });
@@ -203,6 +218,24 @@ export async function initAtlas() {
     const welcomeField = new THREE.Mesh(new THREE.PlaneGeometry(9.6,6.2),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,colorWrite:false}));
     welcomeField.rotation.x = -Math.PI/2; welcomeField.position.set(0,.9,-13.5);
     welcomeField.userData.preview = 'about'; scene.add(welcomeField); buildings.push(welcomeField);
+    // Pick the building as a whole, including gaps between trusses, open roofs
+    // and glass. Triangle-only picking makes the effect stop over these gaps.
+    // These authored volumes cover the buildings, never their access bridges.
+    const volumes: {key:string;center:[number,number,number];size:[number,number,number]}[] = [
+      {key:'friends',center:[15,3.5,3],size:[3.3,5.8,3.3]},
+      {key:'skills',center:[-12,2.35,-6.2],size:[7,4.1,5.8]},
+      {key:'works',center:[13,1.95,-10.2],size:[5.8,3.3,5.2]},
+      {key:'character',center:[0,1.9,0],size:[7.4,3.4,6.5]},
+      {key:'timeline',center:[-11,1.9,10.2],size:[4.5,3.1,4.5]},
+      {key:'recent',center:[3,1.9,13],size:[4.6,3,4]},
+    ];
+    const hitVolumes=volumes.map(({key,center,size})=>{
+      const volume=new THREE.Mesh(new THREE.BoxGeometry(...size),new THREE.MeshBasicMaterial({
+        transparent:true,opacity:0,depthWrite:false,colorWrite:false,
+      }));
+      volume.name='interaction-'+key;volume.position.set(...center);volume.userData.preview=key;
+      scene.add(volume);volume.updateMatrixWorld(true);return volume;
+    });
     let selected = '';
     highlight = key => {
       if (selected === key) return;
@@ -303,7 +336,11 @@ export async function initAtlas() {
       raycaster.setFromCamera(pointer,camera);
     }
     function pick(x: number,y: number) {
-      ray(x,y); const hit = raycaster.intersectObjects(buildings,false)[0];
+      ray(x,y);
+      const hit = raycaster.intersectObjects([...hitVolumes,...buildings],false).find(hit=>{
+        const key=hit.object.userData.preview ?? destinations[hit.object.name.split('_')[0]];
+        return key !== 'friends' || hit.point.x >= 12.5;
+      });
       return hit ? hit.object.userData.preview ?? destinations[hit.object.name.split('_')[0]] : '';
     }
     const touches = new Map<number,{x:number;y:number;startX:number;startY:number;moved:boolean}>();
@@ -380,7 +417,7 @@ export async function initAtlas() {
         if (Math.abs(angle-desiredAngle)<.02) angle = desiredAngle;
         updateCamera();
       }
-      const motion=!reduced.matches&&!world!.classList.contains('is-directory');
+      const motion=buildingMotion&&!world!.classList.contains('is-directory');
       world!.dataset.effectMotion=String(Boolean(selected&&motion));
       if(effects.update(now/1000,motion))dirty=true;
       if (selected && motion) {

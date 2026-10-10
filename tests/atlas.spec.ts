@@ -267,7 +267,7 @@ test('all seven English HUD links preview and navigate independently', async ({ 
   await links.last().click();await expect(page).toHaveURL(/\/friends\/$/);
 });
 
-test('entity activity is exclusive, stops on close and respects reduced motion', async ({ page,browser }) => {
+test('entity activity is exclusive, stops on close and has an independent motion control', async ({ page,browser }) => {
   await ready(page);
   for(const key of ['friends','skills','works','character','timeline','recent','about']) {
     await page.locator('.atlas-node[data-preview-trigger="'+key+'"]').hover();
@@ -280,7 +280,15 @@ test('entity activity is exclusive, stops on close and respects reduced motion',
   const context=await browser.newContext({reducedMotion:'reduce',viewport:{width:1440,height:1000}});
   const reduced=await context.newPage();await ready(reduced);
   await reduced.locator('.atlas-node[data-preview-trigger="friends"]').hover();
-  await expect(reduced.locator('[data-atlas]')).toHaveAttribute('data-effect-motion','false');await context.close();
+  await expect(reduced.locator('[data-atlas]')).toHaveAttribute('data-effect-motion','true');
+  await reduced.locator('[data-atlas-motion]').click();
+  await expect(reduced.locator('[data-atlas]')).toHaveAttribute('data-effect-motion','false');
+  await reduced.reload();await expect(reduced.locator('[data-atlas]')).toHaveClass(/is-ready/);
+  await reduced.locator('.atlas-node[data-preview-trigger="friends"]').hover();
+  await expect(reduced.locator('[data-atlas]')).toHaveAttribute('data-effect-motion','false');
+  await reduced.locator('[data-atlas-motion]').click();
+  await expect(reduced.locator('[data-atlas]')).toHaveAttribute('data-effect-motion','true');
+  await context.close();
 });
 
 test('each building has moving effect geometry and other districts stay still', () => {
@@ -310,4 +318,37 @@ test('each building has moving effect geometry and other districts stay still', 
     expect(activity.update(now+1.3,false)).toBeFalsy();
   }
   activity.select('');expect(activity.name()).toBe('');
+});
+
+test('signal tower gaps keep receiving animation active without including the bridge', async ({page}) => {
+  await page.setViewportSize({width:1280,height:720});
+  for(const pitch of [58,0]) {
+    await ready(page);await angle(page,pitch);
+    const point=await page.locator('.atlas-node[data-preview-trigger="friends"]').evaluate(el=>({
+      x:Number((el as HTMLElement).dataset.anchorX),y:Number((el as HTMLElement).dataset.anchorY),
+    }));
+    const box=(await page.locator('.atlas-canvas').boundingBox())!;
+    const x=box.x+point.x,y=box.y+point.y+(pitch ? 80 : 8);
+    await page.mouse.move(x,y);
+    await expect(page.locator('[data-atlas]')).toHaveAttribute('data-active-entity','friends');
+    // Hold the pointer in the open lattice longer than the preview close delay.
+    await page.waitForTimeout(1500);
+    await expect(page.locator('[data-atlas]')).toHaveAttribute('data-effect-motion','true');
+    for(const dx of [-6,0,6]) {
+      await page.mouse.move(x+dx,y);
+      await expect(page.locator('[data-atlas]')).toHaveAttribute('data-active-entity','friends');
+    }
+    const clip={x:x-60,y:box.y+point.y-6,width:120,height:155};
+    const first=await page.screenshot({clip});await page.waitForTimeout(450);
+    const second=await page.screenshot({clip});
+    expect(first.equals(second)).toBeFalsy();
+    await page.keyboard.press('Escape');
+    const bridge=await page.locator('[data-atlas]').evaluate((el,pitch)=>{
+      const d=(el as HTMLElement).dataset,s=Number(d.scale),r=pitch*Math.PI/180;
+      return {x:el.clientWidth/2+(9-Number(d.targetX))*s,
+        y:el.clientHeight/2+((3-Number(d.targetZ))*Math.cos(r)-.8*Math.sin(r))*s};
+    },pitch);
+    await page.mouse.move(box.x+bridge.x,box.y+bridge.y);
+    await expect(page.locator('[data-atlas]')).not.toHaveAttribute('data-active-entity','friends');
+  }
 });
