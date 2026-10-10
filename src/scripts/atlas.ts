@@ -3,7 +3,8 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { createAtlasLabels, HOME_ANGLE, HOME_TARGET_Z } from './atlas-labels';
 import { createAtlasEffects } from './atlas-effects';
-import atlasModel from '../data/atlas-model.json';
+import atlasModel from '../data/atlas-model.json' with {type:'json'};
+import {gardenCycle} from './atlas-garden-cycle';
 
 export async function initAtlas() {
   const world = document.querySelector<HTMLElement>('[data-atlas]');
@@ -217,9 +218,10 @@ export async function initAtlas() {
           const lightMask=key==='character'
             ? 'step(2.99,atlasPosition.y)*(1.0-step(3.12,atlasPosition.y))*step(-2.4,atlasPosition.z)*(1.0-step(-1.6,atlasPosition.z))*(1.0-step(3.0,abs(atlasPosition.x)))'
             : key==='works'?'step(2.7,atlasPosition.y)*(1.0-smoothstep(2.0,2.5,abs(atlasPosition.x-13.0)))'
-            : 'step(3.85,atlasPosition.y)*(1.0-step(4.18,atlasPosition.y))*step(-3.95,atlasPosition.z)*(1.0-step(-3.4,atlasPosition.z))';
+            : '(step(3.85,atlasPosition.y)*(1.0-step(4.18,atlasPosition.y))*step(-3.95,atlasPosition.z)*(1.0-step(-3.4,atlasPosition.z)) + 0.8*step(2.3,atlasPosition.y)*(1.0-step(3.5,atlasPosition.y))*step(-8.21,atlasPosition.z)*(1.0-step(-4.17,atlasPosition.z))*step(-15.0,atlasPosition.x)*(1.0-step(-9.0,atlasPosition.x)))';
+          const lightColor=key==='skills'?'vec3(0.10,0.30,0.24)':'vec3(0.32,0.21,0.06)';
           shader.fragmentShader=shader.fragmentShader.replace('#include <dithering_fragment>',
-            'float surfaceLight='+lightMask+';\nfloat reflection=pow(max(0.0,cos(atlasPosition.x*1.6-atlasFxTime*1.5)),8.0);\ngl_FragColor.rgb += atlasStrength*atlasFxEnabled*surfaceLight*vec3(0.32,0.21,0.06)*(0.3+reflection);\n#include <dithering_fragment>');
+            'float surfaceLight='+lightMask+';\nfloat reflection=pow(max(0.0,cos(atlasPosition.x*1.6-atlasFxTime*1.5)),8.0);\ngl_FragColor.rgb += atlasStrength*atlasFxEnabled*surfaceLight*'+lightColor+'*(0.3+reflection);\n#include <dithering_fragment>');
         }
       };
       material.customProgramCacheKey = () => key === 'about' ? 'atlas-field-v1'
@@ -441,6 +443,8 @@ export async function initAtlas() {
       }
       fxTime.value=effects.time();fxEnabled.value=motion?1:0;
       world!.dataset.atmosphereCount=String(effects.atmosphereCount());
+      world!.dataset.effectTime=effects.time().toFixed(2);
+      world!.dataset.gardenPhase=selected==='about'?gardenCycle(effects.time()).phase:'';
       if (!dirty) return;
       dirty = false; renderer!.render(scene,camera);
     }

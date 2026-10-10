@@ -15,8 +15,17 @@ def carriage(t):
         if t<=b:return x+(y-x)*smooth(a,b,t)
     return 0
 
+def garden_growth(t,offset=0):
+    t=max(0,t-offset)
+    growth=.15*smooth(.3,1.5,t) if t<4.6 else .15+.85*smooth(4.6,10.5,t)
+    return growth*(1-smooth(13.2,15.8,t))
+
+def garden_ripe(t,offset=0):
+    t=max(0,t-offset)
+    return smooth(9.8,12.2,t)*(1-smooth(13.2,15.8,t))
+
 def bind_animations(groups,parts,meshes,height,output):
-    scene=bpy.context.scene;scene.render.fps=FPS;scene.frame_start=1;scene.frame_end=LAST
+    scene=bpy.context.scene;scene.render.fps=FPS;scene.frame_start=1;scene.frame_end=541
     rest={name:(o.location.copy(),o.rotation_euler.copy(),o.scale.copy()) for name,o in groups.items()}
     keyed={}
     for name,obj in groups.items():
@@ -52,29 +61,43 @@ def bind_animations(groups,parts,meshes,height,output):
                 # An exact zero makes Blender's GLB exporter bake singular child
                 # matrices. A sub-pixel rest scale keeps the attached drop intact.
                 obj.scale*=max(.001,max(0,math.sin(math.pi*p))*(smooth(0,.45,t)*(1-smooth(5.5,6,t))))
-            if name in ['camp_canopy','cultivated_seedlings']:continue
+            if name=='camp_canopy' or name.startswith('cultivated_crop_'):continue
             for channel in ['location','rotation_euler','scale']:obj.keyframe_insert(channel,frame=frame)
-    for zone in ['camp_canopy','cultivated_seedlings']:
+    for zone in ['camp_canopy']+[name for name in parts if name.startswith('cultivated_crop_')]:
         for obj in meshes.get(zone,[]):
-            obj.shape_key_add(name='Basis')
-            keys=[obj.shape_key_add(name='Wind A'),obj.shape_key_add(name='Wind B')]
+            obj.shape_key_add(name='Basis',from_mix=False)
+            crop=zone.startswith('cultivated_crop_')
+            offset=int(zone.rsplit('_',1)[1])*.25 if crop else 0
+            anchors=obj.data.attributes.get('plant_root') if crop else None
+            if crop:
+                compress=obj.shape_key_add(name='Seed to mature',from_mix=False)
+                for i,v in enumerate(compress.data):
+                    anchor=anchors.data[i].vector;v.co=anchor+(v.co-anchor)*.10
+                for frame in range(1,542,2):
+                    t=(frame-1)/FPS;compress.value=1-garden_growth(t,offset);compress.keyframe_insert('value',frame=frame)
+                if obj.name.endswith('_flower'):
+                    hidden=obj.shape_key_add(name='Fruit ripening',from_mix=False)
+                    for i,v in enumerate(hidden.data):
+                        center=anchors.data[i].vector+Vector((.025,.015,.50));v.co=center+(v.co-center)*.01
+                    for frame in range(1,542,2):
+                        t=(frame-1)/FPS;g=.1+.9*garden_growth(t,offset)
+                        hidden.value=g*(1-garden_ripe(t,offset));hidden.keyframe_insert('value',frame=frame)
+            keys=[obj.shape_key_add(name='Wind A',from_mix=False),obj.shape_key_add(name='Wind B',from_mix=False)]
             for index,key in enumerate(keys):
                 key.slider_min=-1;key.slider_max=1
-                for v in key.data:
+                for vertex_index,v in enumerate(key.data):
                     w=obj.matrix_world@v.co
                     if zone=='camp_canopy':
                         x=w.x-3;y=w.y+13
                         pinned=abs(math.sin(math.pi*x/1.95))*max(0,math.sin(math.pi*(y+1.7)/3.4))
                         v.co.z+=.2*pinned*math.sin(x*2.3+y*(1.4+index))
                     else:
-                        bx=min([0,-3.2,3.2],key=lambda x:abs(w.x-x))
-                        rows=[base-1+j*.62 for base in [12,15.2] for j in range(4)]
-                        cy=min(rows,key=lambda y:abs(w.y-y));root=height(bx,cy)+.06
-                        weight=max(0,min(1.3,(w.z-root)/.27))**1.7
+                        root=anchors.data[vertex_index].vector.z
+                        weight=max(0,min(1.3,(w.z-root)/.50))**1.7
                         v.co.x+=.06*weight*math.sin(w.y*1.5+index*1.8)
                         v.co.y+=.025*weight*math.cos(w.x*1.3+index*1.5)
-                for frame in range(1,LAST+1,2):
-                    t=(frame-1)/FPS;key.value=math.sin(math.tau*t/6*(index+1))
+                for frame in range(1,(542 if crop else LAST+1),2):
+                    t=(frame-1)/FPS;key.value=math.sin(math.tau*t/6*(index+1))*(.1+.9*garden_growth(t,offset) if crop else 1)
                     key.keyframe_insert('value',frame=frame)
             keyed[obj.data.shape_keys]=parts[zone]['clip']
     # Shared track names merge the articulated parts into seven destination clips.
@@ -118,6 +141,19 @@ def bind_animations(groups,parts,meshes,height,output):
                     minimum_clearance=min(minimum_clearance,world.x-(15+mast_radius))
     assert minimum_clearance>.12,minimum_clearance
     contacts.append({'pair':'moving dish and feed / mast envelope','minimum_clearance':minimum_clearance,'required_clearance':.12})
+    stem=next(o for o in meshes['cultivated_crop_0'] if o.name.endswith('_leaf3'))
+    anchors=stem.data.attributes['plant_root'].data
+    heights=[];root_error=0
+    for frame in [1,106,286,376,451,526,541]:
+        scene.frame_set(frame);bpy.context.view_layer.update()
+        evaluated=stem.evaluated_get(bpy.context.evaluated_depsgraph_get()).data
+        heights.append({'frame':frame,'height':max(v.co.z-anchors[i].vector.z for i,v in enumerate(evaluated.vertices))})
+        for i,v in enumerate(stem.data.vertices):
+            if abs(v.co.z-anchors[i].vector.z)<1e-6:
+                root_error=max(root_error,abs(evaluated.vertices[i].co.z-anchors[i].vector.z))
+    assert root_error<1e-5,root_error
+    assert heights[3]['height']>heights[0]['height']*4,heights
+    contacts.append({'pair':'crop roots / bed surface','maximum_endpoint_residual':root_error,'sampled_heights':heights})
     scene.frame_set(1)
     (output/'mechanical-checks.json').write_text(json.dumps({'fps':FPS,'frames':[1,46,91,136,181],
         'contacts':contacts,'clips':sorted(set(keyed.values())),'parts':list(parts)},indent=2),encoding='utf-8')

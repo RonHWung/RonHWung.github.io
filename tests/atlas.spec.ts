@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test';
 import * as THREE from 'three';
 import { createAtlasEffects } from '../src/scripts/atlas-effects';
 import { createAtlasAtmosphere } from '../src/scripts/atlas-atmosphere';
+import {gardenCycle} from '../src/scripts/atlas-garden-cycle';
+import {readFileSync} from 'node:fs';
 const pageErrors=new WeakMap<import('@playwright/test').Page,string[]>();
 test.beforeEach(({page})=>{
   const errors:string[]=[];pageErrors.set(page,errors);
@@ -329,6 +331,19 @@ test('scene atmosphere follows one destination, stops completely and disposes it
     cues.update(1.5,false);expect(cues.activeCount()).toBe(0);
   }
   cues.dispose();expect(scene.getObjectByName('atlas-atmosphere')).toBeUndefined();
+});
+
+test('rain and sunshine are separate stages of a repeating garden cycle',()=>{
+  const times=[.5,3,8,14,17];expect(times.map(t=>gardenCycle(t).phase)).toEqual(['sow','rain','grow','harvest','sow']);
+  expect(gardenCycle(3).rain).toBeGreaterThan(.9);expect(gardenCycle(3).sun).toBe(0);
+  expect(gardenCycle(8).rain).toBe(0);expect(gardenCycle(8).sun).toBeGreaterThan(.9);
+  expect(gardenCycle(14).rain).toBe(0);expect(gardenCycle(14).harvest).toBeGreaterThan(.9);
+  expect(gardenCycle(18)).toEqual(gardenCycle(0));
+  const file=readFileSync(new URL('../public/models/ronghuang-atlas.glb',import.meta.url));
+  const gltf=JSON.parse(file.subarray(20,20+file.readUInt32LE(12)).toString());
+  const clip=gltf.animations.find((a:{name:string})=>a.name==='about');
+  expect(Math.max(...clip.samplers.map((s:{input:number})=>gltf.accessors[s.input].max[0]))).toBeGreaterThan(18);
+  expect(gltf.nodes.some((node:{name:string})=>/sprinkler|cultivated_drop/.test(node.name))).toBeFalsy();
 });
 
 test('signal tower gaps keep receiving animation active without including the bridge', async ({page}) => {

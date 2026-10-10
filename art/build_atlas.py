@@ -12,7 +12,7 @@ from mathutils import Vector, Matrix
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'public' / 'models'
-PRIVATE = ROOT.parent / 'workbench-private' / 'atlas-atmosphere-20261011'
+PRIVATE = ROOT.parent / 'workbench-private' / 'atlas-seasons-20261011'
 OUT.mkdir(parents=True, exist_ok=True)
 PRIVATE.mkdir(parents=True, exist_ok=True)
 random.seed(522)
@@ -22,6 +22,8 @@ MATS = {}
 CACHE = {}
 ZONE = 'landscape'
 PARTS = {}
+PLANT_ROOT = None
+PLANT_ROOTS = defaultdict(list)
 
 @contextmanager
 def moving_part(name, pivot, clip, parent=None, rotation=(0,0,0)):
@@ -59,6 +61,7 @@ for i,c in enumerate(['B8C594','BBC999','BFCCA0','C4CFA7','CBD3B2','A5BD98','A0B
 
 def emit(verts, faces, mat, zone=None):
     v,f=BUCKETS[(zone or ZONE,mat)]; n=len(v); v.extend(verts); f.extend(tuple(n+i for i in face) for face in faces)
+    if PLANT_ROOT is not None:PLANT_ROOTS[(zone or ZONE,mat)].extend([PLANT_ROOT]*len(verts))
 
 def box(p, size, mat='porcelain', bevel=.04, rot=0):
     key=('box',tuple(round(s,4) for s in size),round(bevel,4))
@@ -529,7 +532,7 @@ def communications():
     for sign in [-1,1]: box((rx+sign*(w+.28),cy,.44),(.3,.95,.55),'stone',.03)
 
 def cultivated_details():
-    global ZONE; ZONE='cultivated'
+    global ZONE,PLANT_ROOT; ZONE='cultivated'
     # Precise growing beds, seedling rows and walking aisles give each close-up
     # a horticultural scale. They stop at tile seams, riverbanks and road edges.
     for bx,by in [(0,12),(3.2,15.2),(-3.2,15.2),(16,6.4),(16,16)]:
@@ -540,26 +543,23 @@ def cultivated_details():
             for i in range(10):
                 px=bx-1.05+i*.23
                 if bx in [0,3.2,-3.2]:
-                    with moving_part('cultivated_seedlings',(0,0,0),'about'):
-                        sphere((px,cy,z+.18),(.085,.12,.12),'leaf'+str((i+j)%4),i+j)
-                        if (i+j)%3==0: sphere((px,cy-.045,z+.28),(.038,.038,.023),'flower',i)
+                    plot=[0,-3.2,3.2].index(bx);root=(px,cy,z+.105);PLANT_ROOT=root
+                    with moving_part('cultivated_crop_'+str(plot),(0,0,0),'about'):
+                        # Slender stem and curved pointed leaves reward close inspection.
+                        tube([root,(px+.015,cy,root[2]+.25),(px,cy+.01,root[2]+.48)],.012,'leaf3',8)
+                        for side in [-1,1]:
+                            vs=[]
+                            for k in range(13):
+                                u=k/12;cx=px+side*.17*u;cz=root[2]+.18+.17*u+.07*math.sin(math.pi*u)
+                                width=.055*max(.04,math.sin(math.pi*u))
+                                vs.extend([(cx,cy-width,cz),(cx,cy,cz+.014*math.sin(math.pi*u)),(cx,cy+width,cz)])
+                            emit(vs,[(k*3+m,k*3+m+1,(k+1)*3+m+1,(k+1)*3+m) for k in range(12) for m in range(2)],'leaf'+str((i+j)%3))
+                        sphere((px+.025,cy+.015,root[2]+.50),(.055,.045,.07),'flower',i)
+                    PLANT_ROOT=None
                 else:
                     sphere((px,cy,z+.18),(.085,.12,.12),'leaf'+str((i+j)%4),i+j)
                     if (i+j)%3==0: sphere((px,cy-.045,z+.28),(.038,.038,.023),'flower',i)
-    # Low irrigation pipes are seated in walking aisles, with swivel nozzles.
-    for side in [-1,1]:
-        bx=side*4.45;by=14;ground=height(bx,by)
-        tube([(bx,11+i*5.5/22,height(bx,11+i*5.5/22)+.07) for i in range(23)],.045,'dark',12)
-        rod((bx,by,ground+.07),(bx,by,ground+.65),.055,'steel')
-        lathe((bx,by,ground+.57),[(.12,0),(.12,.08)],'yellow',32)
-        name='cultivated_sprinkler_'+('left' if side<0 else 'right');pivot=(bx,by,ground+.67)
-        with moving_part(name,pivot,'about'):
-            lathe(pivot,[(.085,0),(.085,.09)],'steel',24)
-            rod((bx,by,ground+.73),(bx-side*.24,by,ground+.77),.035,'dark')
-            # Two interleaved streams, sampled as elongated water droplets.
-            for k in range(18):
-                with moving_part('cultivated_drop_'+('left' if side<0 else 'right')+'_'+str(k),pivot,'about',name):
-                    sphere(pivot,(.08,.038,.045),'water_light',k)
+    # The northern garden is rain-fed; the old continuous sprinkler props are removed.
     # Sandstone outcrops: asymmetric, layered natural profiles, never platonic
     # boulders or floating cubes. Embedded footing is calculated from terrain.
     for i in range(24):
@@ -612,6 +612,9 @@ def finish():
         mesh=bpy.data.meshes.new(zone+'_'+mat); mesh.from_pydata(local,[],fs); mesh.materials.append(MATS[mat]); mesh.update()
         obj=bpy.data.objects.new(zone+'_'+mat,mesh); bpy.context.collection.objects.link(obj)
         if group:obj.parent=group;part_meshes[zone].append(obj)
+        if (zone,mat) in PLANT_ROOTS:
+            attr=mesh.attributes.new(name='plant_root',type='FLOAT_VECTOR',domain='POINT')
+            for item,anchor in zip(attr.data,PLANT_ROOTS[(zone,mat)]):item.vector=anchor
         # Smooth curves and topography while retaining authored facade breaks.
         for p in mesh.polygons: p.use_smooth=mat.startswith('leaf') or mat in ['water','water_light','bark','sand'] or zone=='camp_canopy' or (zone=='communications_dish' and mat=='porcelain')
         if zone=='camp_canopy':
@@ -642,7 +645,8 @@ def finish():
     for obj in objects+list(groups.values()): obj.select_set(True)
     bpy.ops.export_scene.gltf(filepath=str(OUT/'ronghuang-atlas.glb'),export_format='GLB',use_selection=True,export_apply=True,export_cameras=False,export_lights=False,export_yup=True,export_extras=True,export_animation_mode='NLA_TRACKS',export_animations=True,export_morph_animation=True,export_draco_mesh_compression_enable=True,export_draco_mesh_compression_level=6)
     version=hashlib.sha256((OUT/'ronghuang-atlas.glb').read_bytes()).hexdigest()[:16]
-    (ROOT/'src/data/atlas-model.json').write_text(json.dumps({'version':version,'clips':sorted(set(p['clip'] for p in PARTS.values()))},indent=2)+'\n',encoding='utf-8')
+    rows=[{'x':bx,'y':height(bx,by-1+j*.62)+.105,'z':-(by-1+j*.62)} for bx,by in [(0,12),(-3.2,15.2),(3.2,15.2)] for j in range(4)]
+    (ROOT/'src/data/atlas-model.json').write_text(json.dumps({'version':version,'clips':sorted(set(p['clip'] for p in PARTS.values())),'gardenRows':rows},indent=2)+'\n',encoding='utf-8')
     stats={'objects':len(objects),'materials':len(MATS),'vertices':sum(len(o.data.vertices) for o in objects),'triangles':sum(sum(len(p.vertices)-2 for p in o.data.polygons) for o in objects),'zones':sorted(set(k[0] for k in BUCKETS)),'seed':522,'stages_completed':['contract_and_references','graybox_and_proportion','primary_secondary_forms','structural_refinement','materials_textures','surface_polish'],'blender':bpy.app.version_string}
     (PRIVATE/'build-metrics.json').write_text(json.dumps(stats,indent=2),encoding='utf-8')
     if '--skip-render' not in sys.argv:

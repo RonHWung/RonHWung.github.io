@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import atlasModel from '../data/atlas-model.json' with {type:'json'};
+import {gardenCycle} from './atlas-garden-cycle';
 
 /** Physical cues bound to the active district and its moving mechanisms. */
 export function createAtlasAtmosphere(model:THREE.Object3D,camera:THREE.Camera) {
@@ -94,6 +96,10 @@ export function createAtlasAtmosphere(model:THREE.Object3D,camera:THREE.Camera) 
     const leaves=Array.from({length:4},(_,i)=>{
       const mesh=new THREE.Mesh(new THREE.ShapeGeometry(shape,12),basic(i%2?gold:0x649b71));group.add(mesh);return mesh;
     });
+    const chimeWind=Array.from({length:2},(_,i)=>tube(group,Array.from({length:18},(_,j)=>{
+      const u=j/17;return new THREE.Vector3(-.5+u*.95,.055*Math.sin(u*Math.PI*2+i),.16*Math.sin(u*Math.PI));
+    }),teal,.025,.55));
+    const bell=new THREE.Vector3();
     return t=>{
       streams.forEach((stream,i)=>{
         const p=(t/4.2+i/3)%1;stream.position.set(-.3+p*6.2,3.45+i*.2,12.2+i*.65);
@@ -103,28 +109,37 @@ export function createAtlasAtmosphere(model:THREE.Object3D,camera:THREE.Camera) 
         const p=(t/5+i/4)%1;leaf.position.set(.3+p*5.2,3.35+.25*Math.sin(p*Math.PI*2+i),12.1+i*.55);
         leaf.quaternion.copy(camera.quaternion);leaf.rotateZ(t*1.6+i);opacity(leaf,.85*Math.sin(Math.PI*p));
       });
+      point('camp_chime_steel',bell,new THREE.Vector3(4.55,1.45,14.5),true);
+      chimeWind.forEach((stream,i)=>{
+        const p=(t/2.8+i/2)%1;stream.position.copy(bell).add(new THREE.Vector3(-.3+p*.6,.07+i*.16,.12));
+        opacity(stream,.6*Math.sin(Math.PI*p));
+      });
     };
   });
   add('about',group=>{
-    const mist=Array.from({length:20},()=>soft(group,0x62b7c2));
-    const splashes=Array.from({length:6},()=>{
-      const mesh=new THREE.Mesh(new THREE.RingGeometry(.82,1,32),basic(0x318f9b));mesh.rotation.x=-Math.PI/2;group.add(mesh);return mesh;
-    });
-    const source=new THREE.Vector3(),rotation=new THREE.Quaternion(),offset=new THREE.Vector3();
+    const centers=[[0,-12],[-3.2,-15.2],[3.2,-15.2]];
+    const clouds=Array.from({length:12},()=>soft(group,0x8eb3bd));
+    const rain=Array.from({length:42},()=>{const mesh=new THREE.Mesh(plane,basic(0x448f9e,.7));group.add(mesh);return mesh;});
+    const rows=atlasModel.gardenRows;
+    const wet=rows.map(row=>{const patch=soft(group,0x375852);patch.rotation.x=-Math.PI/2;patch.position.set(row.x,row.y+.008,row.z);patch.scale.set(2.35,.38,1);return patch;});
+    const splashes=rows.map(row=>{const splash=new THREE.Mesh(new THREE.RingGeometry(.82,1,32),basic(teal));splash.rotation.x=-Math.PI/2;splash.position.set(row.x,row.y+.015,row.z);group.add(splash);return splash;});
+    const sunshine=centers.map(([x,z])=>beam(group,new THREE.Vector3(x-2.2,6.5,z-1.8),new THREE.Vector3(x,.85,z),1.65));
+    const harvest=Array.from({length:15},()=>soft(group,gold));
     return t=>{
-      mist.forEach((drop,i)=>{
-        const left=i<10,k=i%10,p=(t/2+k/10)%1,side=left?-1:1;
-        const name='cultivated_sprinkler_'+(left?'left':'right'),node=model.getObjectByName(name);
-        point(name,source,new THREE.Vector3(side*4.45,1.2,-14));node?.getWorldQuaternion(rotation);
-        offset.set(-side*(.24+p*3.1),.15+1.65*Math.sin(p*Math.PI)-p*.72,.24*Math.sin(k*2)*p);
-        if(node)offset.applyQuaternion(rotation);
-        drop.position.copy(source).add(offset);drop.quaternion.copy(camera.quaternion);
-        drop.scale.setScalar(.28+p*.36);opacity(drop,.52*Math.sin(p*Math.PI));
+      const cycle=gardenCycle(t);
+      clouds.forEach((cloud,i)=>{const [x,z]=centers[Math.floor(i/4)];cloud.position.set(x+(i%4-1.5)*.48,4.2+.12*Math.sin(i+t*.4),z+.18*Math.sin(i*2));cloud.quaternion.copy(camera.quaternion);cloud.scale.set(1.6,1,1);opacity(cloud,.30*cycle.rain);});
+      rain.forEach((drop,i)=>{
+        const [x,z]=centers[i%3],p=(t*1.3+i/42)%1;
+        drop.position.set(x+Math.sin(i*13)*1.1+p*.12,.9+(1-p)*3.15,z+Math.cos(i*7)*1.2);
+        drop.quaternion.copy(camera.quaternion);drop.rotateZ(-.15);drop.scale.set(.045,.40,1);opacity(drop,.7*cycle.rain*Math.sin(p*Math.PI));
       });
-      splashes.forEach((splash,i)=>{
-        const p=(t/2+i/6)%1,side=i<3?-1:1;
-        splash.position.set(side*(2.3+(i%3)*.32),.9,-14.4+(i%3)*.55);
-        splash.scale.setScalar(.12+p*.46);opacity(splash,.65*(1-p));
+      wet.forEach(patch=>opacity(patch,.26*cycle.wet));
+      splashes.forEach((splash,i)=>{const p=(t*1.8+i/12)%1;splash.scale.setScalar(.04+p*.2);opacity(splash,.65*(1-p)*cycle.rain);});
+      sunshine.forEach(shaft=>shaft(.24*cycle.sun));
+      harvest.forEach((spark,i)=>{
+        const [x,z]=centers[i%3],p=(t/1.4+i/15)%1;
+        spark.position.set(x+Math.sin(i*3)*.85,.9+p*.65,z+Math.cos(i*2)*.9);
+        spark.quaternion.copy(camera.quaternion);spark.scale.setScalar(.13);opacity(spark,.75*Math.sin(p*Math.PI)*cycle.harvest);
       });
     };
   });
@@ -172,13 +187,20 @@ export function createAtlasAtmosphere(model:THREE.Object3D,camera:THREE.Camera) 
     };
   });
   add('skills',group=>{
-    const lamp=soft(group,cream),pool=soft(group,gold),dust=Array.from({length:6},()=>soft(group,cream));
+    const lamp=soft(group,cream),dust=Array.from({length:6},()=>soft(group,cream));
+    const path=Array.from({length:65},(_,i)=>{const a=Math.PI*i/64;return new THREE.Vector3(-12+2.95*Math.cos(a),2.35+.85*Math.sin(a)+.09,-4.95);});
+    const scan=tube(group,path,teal,.047,.75);
+    const trace=soft(group,cream);
+    const ventilation=Array.from({length:6},()=>soft(group,0xb6d2cf));
     const trolley=new THREE.Vector3(),hook=new THREE.Vector3();
     return t=>{
       point('workshop_carriage',trolley,new THREE.Vector3(-11.1,3.81,-3.7));
       point('workshop_sling_steel',hook,new THREE.Vector3(trolley.x,2.63,-3.7),true);
       lamp.position.copy(trolley);lamp.quaternion.copy(camera.quaternion);lamp.scale.setScalar(.35);opacity(lamp,.7);
-      pool.position.set(trolley.x,1.95,-3.5);pool.rotation.x=-Math.PI/2;pool.scale.set(1,.65,1);opacity(pool,.35);
+      const progress=(t/3)%1,index=Math.min(path.length-1,Math.floor(progress*(path.length-1)));
+      scan.geometry.setDrawRange(Math.max(0,Math.floor(progress*48)-13)*36,Math.min(14,Math.floor(progress*48)+1)*36);
+      trace.position.copy(path[index]);trace.quaternion.copy(camera.quaternion);trace.scale.setScalar(.31);opacity(trace,.75);
+      ventilation.forEach((puff,i)=>{const p=(t/2.8+(i%3)/3)%1;puff.position.set(-12+(i<3?-1.5-p*.5:1.5+p*.5),3.62+p*.85,-6.7+p*1.2);puff.quaternion.copy(camera.quaternion);puff.scale.setScalar(.28+p*.55);opacity(puff,.32*Math.sin(p*Math.PI));});
       dust.forEach((mote,i)=>{
         const p=(t/2.3+i/6)%1;mote.position.copy(hook).add(new THREE.Vector3(.22*Math.sin(i*2),-.2-p*.7,.22*Math.cos(i*2)));
         mote.quaternion.copy(camera.quaternion);mote.scale.setScalar(.12);opacity(mote,.75*Math.sin(p*Math.PI));

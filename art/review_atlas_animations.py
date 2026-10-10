@@ -3,7 +3,7 @@ import bpy,math,json,sys
 from pathlib import Path
 from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[1]
-OUT=ROOT.parent/'workbench-private/atlas-atmosphere-20261011/critical-frames';OUT.mkdir(parents=True,exist_ok=True)
+OUT=ROOT.parent/'workbench-private/atlas-seasons-20261011/critical-frames';OUT.mkdir(parents=True,exist_ok=True)
 bpy.ops.object.select_all(action='SELECT');bpy.ops.object.delete(use_global=False)
 bpy.context.scene.render.fps=30
 bpy.ops.import_scene.gltf(filepath=str(ROOT/'public/models/ronghuang-atlas.glb'))
@@ -32,7 +32,7 @@ for key,(x,y,z,scale) in views.items():
     for view,offset in [('overview',(0,-12,8)),('detail',(8,-10,7))]:
         camera.location=Vector((x,y,z))+Vector(offset)
         camera.rotation_euler=(Vector((x,y,z))-camera.location).to_track_quat('-Z','Y').to_euler();camera.data.ortho_scale=scale
-        for frame in [1,46,91,136,181]:
+        for frame in ([1,106,286,376,451,526,541] if key=='about' else [1,46,91,136,181]):
             scene.frame_set(frame);scene.render.filepath=str(OUT/f'{key}-{view}-{frame:03}.png')
             bpy.ops.render.render(write_still=True)
             records.append({'clip':key,'view':view,'frame':frame,'file':scene.render.filepath})

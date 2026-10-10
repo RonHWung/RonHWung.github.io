@@ -5,7 +5,7 @@ import { createAtlasAtmosphere } from './atlas-atmosphere';
 export function createAtlasEffects(model: THREE.Object3D, clips: THREE.AnimationClip[], camera?:THREE.Camera) {
   const names:Record<string,string>={friends:'dish-acquisition',skills:'gantry-inspection',
     works:'glasshouse-ventilation',character:'pavilion-welcome',timeline:'oculus-iris',
-    recent:'canvas-and-chimes',about:'garden-irrigation'};
+    recent:'canvas-and-chimes',about:'garden-seasons'};
   const mixer=new THREE.AnimationMixer(model);
   const atmosphere=camera?createAtlasAtmosphere(model,camera):undefined;
   const actions=new Map(clips.filter(clip=>clip.name in names).map(clip=>[clip.name,mixer.clipAction(clip)]));
